@@ -6,20 +6,20 @@ namespace api.Etc.Controllers;
 public class LibraryController(ILibraryService libraryService)
 {
     [HttpGet(nameof(GetAuthors))]
-    public List<AuthorDto> GetAuthors()
+    public async Task<List<AuthorDto>> GetAuthors()
     {
-        throw new NotImplementedException();
+        return await libraryService.GetAuthors();
     }   
     
     [HttpGet(nameof(GetBooks))]
-    public List<BookDto> GetBooks()
+    public async Task<List<BookDto>> GetBooks()
     {
-        throw new NotImplementedException();
+        return await libraryService.GetBooks();
     }   
     
     [HttpGet(nameof(GetGenres))]
-    public List<GenreDto> GetGenres()
+    public async Task<List<GenreDto>> GetGenres()
     {
-        throw new NotImplementedException();
+        return await libraryService.GetGenres();
     }   
 }
