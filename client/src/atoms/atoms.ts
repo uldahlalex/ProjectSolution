@@ -1,4 +1,4 @@
-import {atom} from "jotai/vanilla/atom";
+import {atom} from "jotai";
 import type {AuthorDto, BookDto, GenreDto} from "../generated-client.ts";
 
 export const AllAuthorsAtom = atom<AuthorDto[]>([]);

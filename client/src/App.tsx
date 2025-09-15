@@ -1,10 +1,10 @@
 import {createBrowserRouter, RouterProvider} from "react-router";
 import Home from "./Components/Home.tsx";
 import {DevTools} from "jotai-devtools";
-import 'jotai-devtools'
 import {useEffect} from "react";
 import {libraryApi} from "./api-clients.ts";
-import {useAtom} from "jotai/react/useAtom";
+import {useAtom} from "jotai";
+import 'jotai-devtools/styles.css'
 import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
 import Books from "./Components/Books.tsx";
 import Authors from "./Components/Authors.tsx";
