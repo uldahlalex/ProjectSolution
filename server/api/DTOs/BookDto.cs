@@ -10,7 +10,7 @@ public class BookDto
         Title = entity.Title;
         Pages = entity.Pages;
         Createdat = entity.Createdat;
-        if (Genre != null)
+        if (entity.Genre != null)
         {
                   Genre = new GenreDto(entity.Genre);
         }

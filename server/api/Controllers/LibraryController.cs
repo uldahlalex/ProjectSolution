@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Etc.Controllers;
 
-public class LibraryController(ILibraryService libraryService)
+public class LibraryController(ILibraryService libraryService) 
 {
     [HttpGet(nameof(GetAuthors))]
     public async Task<List<AuthorDto>> GetAuthors()
@@ -21,5 +21,23 @@ public class LibraryController(ILibraryService libraryService)
     public async Task<List<GenreDto>> GetGenres()
     {
         return await libraryService.GetGenres();
-    }   
+    }
+
+    [HttpPost(nameof(CreateBook))]
+    public async Task<BookDto> CreateBook([FromBody]CreateBookRequestDto dto)
+    {
+        return await libraryService.CreateBook(dto);
+    }
+
+    [HttpPut(nameof(UpdateBook))]
+    public async Task<BookDto> UpdateBook([FromBody]UpdateBookRequestDto dto)
+    {
+        return await libraryService.UpdateBook(dto);
+    }
+
+    [HttpDelete(nameof(DeleteBook))]
+    public async Task<BookDto> DeleteBook([FromQuery] string bookId)
+    {
+        return await libraryService.DeleteBook(bookId);
+    } 
 }
