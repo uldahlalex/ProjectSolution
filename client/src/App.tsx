@@ -1,5 +1,7 @@
 import {createBrowserRouter, RouterProvider} from "react-router";
 import Home from "./Components/Home.tsx";
+import {DevTools} from "jotai-devtools";
+import 'jotai-devtools/styles.css';
 
 
 function App() {
@@ -12,6 +14,7 @@ function App() {
               element: <Home />
           }
       ])} />
+        <DevTools />
     </>
   )
 }
