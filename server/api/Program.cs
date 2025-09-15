@@ -24,6 +24,7 @@ public class Program
         services.AddOpenApiDocument();
         services.AddCors();
         services.AddScoped<ILibraryService, LibraryService>();
+        services.AddScoped<ISeeder, Seeder>();
 
     }
 
@@ -35,12 +36,23 @@ public class Program
         var appOptions = app.Services.GetRequiredService<AppOptions>();
 //Here im just checking that I can get the "Db" connection string - it throws exception if not minimum 1 length
         Validator.ValidateObject(appOptions, new ValidationContext(appOptions), true);
-
+        
         app.UseOpenApi();
         app.UseSwaggerUi();
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
         app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
+        if (app.Environment.IsDevelopment())
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var seeder = scope.ServiceProvider.GetService<ISeeder>();
+                if (seeder != null)
+                {
+                    seeder.Seed();
+                }
+            }
+        }
         app.Run();
 
     }
