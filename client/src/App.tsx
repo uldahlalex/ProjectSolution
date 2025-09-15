@@ -4,29 +4,54 @@ import {DevTools} from "jotai-devtools";
 import 'jotai-devtools'
 import {useEffect} from "react";
 import {libraryApi} from "./api-clients.ts";
+import {useAtom} from "jotai/react/useAtom";
+import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
+import Books from "./Components/Books.tsx";
+import Authors from "./Components/Authors.tsx";
+import Genres from "./Components/Genres.tsx";
 
 
 function App() {
-    
+
+    const [, setAuthors] = useAtom(AllAuthorsAtom)
+    const [, setBooks] = useAtom(AllBooksAtom)
+    const [, setGenres] = useAtom(AllGenresAtom)
+
     useEffect(() => {
-         libraryApi.getAuthors().then(res => {
-            console.log(res)
-        }).catch(e => {
-            console.log(e)
-        })
+        initializeData();
     }, [])
 
-  return (
-    <>
-      <RouterProvider router={createBrowserRouter([
-          {
-              path: '',
-              element: <Home />
-          }
-      ])} />
-        <DevTools />
-    </>
-  )
+    async function initializeData() {
+        setAuthors(await libraryApi.getAuthors());
+        setBooks(await libraryApi.getBooks())
+        setGenres(await libraryApi.getGenres())
+    }
+
+    return (
+        <>
+            <RouterProvider router={createBrowserRouter([
+                {
+                    path: '',
+                    element: <Home/>,
+                    children: [
+                        {
+                            path: 'books',
+                            element: <Books/>
+                        },
+                        {
+                            path: 'authors',
+                            element: <Authors/>
+                        },
+                        {
+                            path: 'genres',
+                            element: <Genres/>
+                        }
+                    ]
+                }
+            ])}/>
+            <DevTools/>
+        </>
+    )
 }
 
 export default App
