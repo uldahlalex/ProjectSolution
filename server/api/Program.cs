@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using api.Etc;
+using dataccess;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddSingleton<AppOptions>(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
@@ -10,9 +11,14 @@ builder.Services.AddSingleton<AppOptions>(provider =>
     configuration.GetSection(nameof(AppOptions)).Bind(appOptions);
     return appOptions;
 });
+builder.Services.AddDbContext<MyDbContext>((services, options) =>
+{
+    options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
+});
 builder.Services.AddControllers();
 builder.Services.AddOpenApiDocument();
 builder.Services.AddCors();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
 
 var app = builder.Build();
 

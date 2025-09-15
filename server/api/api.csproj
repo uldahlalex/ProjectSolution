@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="NSwag.AspNetCore" Version="*" />
         <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="*" />
-        <ProjectReference Include="../dataaccess/dataaccess.csproj" />
+        <ProjectReference Include="..\dataccess\dataccess.csproj" />
     </ItemGroup>
 
 </Project>
