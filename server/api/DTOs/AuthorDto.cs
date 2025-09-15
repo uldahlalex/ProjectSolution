@@ -1,7 +1,17 @@
+using dataccess;
+
 namespace api.Etc.DTOs;
 
 public class AuthorDto
 {
+    public AuthorDto(Author entity)
+    {
+        Id = entity.Id;
+        Name = entity.Name;
+        Createdat = entity.Createdat;
+        Books = entity.Books?.Select(b => new BookDto(b)).ToList() ?? new List<BookDto>();
+    }
+    
     public string Id { get; set; } = null!;
 
     public string Name { get; set; } = null!;

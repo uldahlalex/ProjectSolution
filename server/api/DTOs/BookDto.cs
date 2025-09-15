@@ -1,7 +1,19 @@
+using dataccess;
+
 namespace api.Etc.DTOs;
 
 public class BookDto
 {
+    public BookDto(Book entity)
+    {
+        Id = entity.Id;
+        Title = entity.Title;
+        Pages = entity.Pages;
+        Createdat = entity.Createdat;
+        Genre = new GenreDto(entity.Genre);
+        AuthorsIds = entity.Authors?.Select(a => a.Id).ToList() ?? new List<string>();
+    }
+    
     public string Id { get; set; } = null!;
 
     public string Title { get; set; } = null!;
