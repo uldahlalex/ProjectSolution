@@ -10,7 +10,10 @@ public class BookDto
         Title = entity.Title;
         Pages = entity.Pages;
         Createdat = entity.Createdat;
-        Genre = new GenreDto(entity.Genre);
+        if (Genre != null)
+        {
+                  Genre = new GenreDto(entity.Genre);
+        }
         AuthorsIds = entity.Authors?.Select(a => a.Id).ToList() ?? new List<string>();
     }
     
