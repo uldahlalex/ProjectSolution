@@ -12,13 +12,17 @@ builder.Services.AddSingleton<AppOptions>(provider =>
 });
 builder.Services.AddControllers();
 builder.Services.AddOpenApiDocument();
+builder.Services.AddCors();
 
 var app = builder.Build();
+
 var appOptions = app.Services.GetRequiredService<AppOptions>();
 //Here im just checking that I can get the "Db" connection string - it throws exception if not minimum 1 length
 Validator.ValidateObject(appOptions, new ValidationContext(appOptions), true);
+
 app.UseOpenApi();
 app.UseSwaggerUi();
+app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
 app.MapControllers();
 app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
 app.Run();
