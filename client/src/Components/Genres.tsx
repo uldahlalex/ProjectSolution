@@ -7,7 +7,7 @@ export default function Genres() {
     
     return <>{
     genres.map(g => {
-        return <div>{JSON.stringify(g)}</div>
+        return <div key={g.id}>{JSON.stringify(g)}</div>
     })
     }</>
 }

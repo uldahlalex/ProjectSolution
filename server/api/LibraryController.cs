@@ -1,9 +1,11 @@
+using api.Etc;
+using api.Etc.Controllers;
 using api.Etc.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Etc.Controllers;
+namespace api;
 
-public class LibraryController(ILibraryService libraryService) 
+public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
     [HttpGet(nameof(GetAuthors))]
     public async Task<List<AuthorDto>> GetAuthors()

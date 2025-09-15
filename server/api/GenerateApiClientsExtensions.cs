@@ -37,7 +37,7 @@ public static class GenerateApiClientsExtensions
                 GenerateCloneMethod = false,
                 MarkOptionalProperties = true,
                 GenerateConstructorInterface = true,
-                ConvertConstructorInterfaceData = true
+                ConvertConstructorInterfaceData = true,
             }
         };
 

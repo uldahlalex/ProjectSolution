@@ -9,6 +9,8 @@ import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
 import Books from "./Components/Books.tsx";
 import Authors from "./Components/Authors.tsx";
 import Genres from "./Components/Genres.tsx";
+import {Toaster} from "react-hot-toast";
+
 
 
 function App() {
@@ -50,6 +52,10 @@ function App() {
                 }
             ])}/>
             <DevTools/>
+            <Toaster
+                position="top-center"
+                reverseOrder={false}
+            />
         </>
     )
 }

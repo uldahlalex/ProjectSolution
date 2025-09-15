@@ -7,7 +7,7 @@ export default function Authors() {
     
     return <>{
     authors.map(a => {
-        return <div>{JSON.stringify(a)}</div>
+        return <div key={a.id}>{JSON.stringify(a)}</div>
     })
     }</>
 }
