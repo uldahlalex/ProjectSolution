@@ -15,7 +15,7 @@ public class Seeder(MyDbContext ctx) : ISeeder
         var author = new Author()
         {
             Createdat = DateTime.UtcNow,
-            Id = Guid.NewGuid().ToString(),
+            Id = "1",
             Name = "Bob"
         };
         ctx.Authors.Add(author);
@@ -23,7 +23,7 @@ public class Seeder(MyDbContext ctx) : ISeeder
         var book = new Book()
         {
             Createdat = DateTime.UtcNow,
-            Id = Guid.NewGuid().ToString(),
+            Id = "1",
             Pages = 42,
             Title = "Bobs book"
         };
@@ -32,7 +32,7 @@ public class Seeder(MyDbContext ctx) : ISeeder
         var genre = new Genre()
         {
             Createdat = DateTime.UtcNow,
-            Id = Guid.NewGuid().ToString(),
+            Id = "1",
             Name = "thriller"
         };
         ctx.Genres.Add(genre);

@@ -42,13 +42,17 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
     public async Task<BookDto> UpdateBook(UpdateBookRequestDto dto)
     {
         Validator.ValidateObject(dto, new ValidationContext(dto), true);
-        var book = ctx.Books.First(b => b.Id == dto.BookId);
-        var genre = ctx.Genres.First(g => g.Id == dto.GenreId);
-        book.Genre = genre;
-        book.Pages = dto.Pages;
-        book.Title = dto.Title;
-        book.Authors = dto.AuthorsIds.Select(id => ctx.Authors.First(a => a.Id == id)).ToList();
-        ctx.Books.Update(book);
+    
+        var book = ctx.Books.First(b => b.Id == dto.BookIdForLookupReference);
+        ctx.Entry(book).Collection(b => b.Authors).Load();
+    
+        book.Pages = dto.NewPageCout;
+        book.Title = dto.NewTitle;
+        book.Genre = dto.GenreId != null ? ctx.Genres.First(g => g.Id == dto.GenreId) : null;
+    
+        book.Authors.Clear();
+        dto.AuthorsIds?.ForEach(id => book.Authors.Add(ctx.Authors.First(a => a.Id == id)));
+    
         await ctx.SaveChangesAsync();
         return new BookDto(book);
     }

@@ -35,7 +35,7 @@ public static class GenerateApiClientsExtensions
                 NullValue = TypeScriptNullValue.Undefined,
                 TypeScriptVersion = 5.2m,
                 GenerateCloneMethod = false,
-                MarkOptionalProperties = true,
+                MarkOptionalProperties = false,
                 GenerateConstructorInterface = true,
                 ConvertConstructorInterfaceData = true,
             }

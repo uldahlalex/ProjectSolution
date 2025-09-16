@@ -33,8 +33,10 @@ public class Program
         var builder = WebApplication.CreateBuilder();
         ConfigureServices(builder.Services);
         var app = builder.Build();
+        
+        
         var appOptions = app.Services.GetRequiredService<AppOptions>();
-//Here im just checking that I can get the "Db" connection string - it throws exception if not minimum 1 length
+        //Here im just checking that I can get the "Db" connection string - it throws exception if not minimum 1 length
         Validator.ValidateObject(appOptions, new ValidationContext(appOptions), true);
         app.UseExceptionHandler(config =>
         {

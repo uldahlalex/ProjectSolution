@@ -229,26 +229,26 @@ export class LibraryClient {
 }
 
 export interface AuthorDto {
-    id?: string;
-    name?: string;
-    createdat?: string | undefined;
-    books?: BookDto[];
+    id: string;
+    name: string;
+    createdat: string | undefined;
+    books: BookDto[];
 }
 
 export interface BookDto {
-    id?: string;
-    title?: string;
-    pages?: number;
-    createdat?: string | undefined;
-    genre?: GenreDto | undefined;
-    authorsIds?: string[];
+    id: string;
+    title: string;
+    pages: number;
+    createdat: string | undefined;
+    genre: GenreDto | undefined;
+    authorsIds: string[];
 }
 
 export interface GenreDto {
-    id?: string;
-    name?: string;
-    createdat?: string | undefined;
-    books?: string[];
+    id: string;
+    name: string;
+    createdat: string | undefined;
+    books: string[];
 }
 
 export interface CreateBookRequestDto {
@@ -257,11 +257,11 @@ export interface CreateBookRequestDto {
 }
 
 export interface UpdateBookRequestDto {
-    bookId: string;
-    pages: number;
-    title: string;
+    bookIdForLookupReference: string;
+    newPageCout: number;
+    newTitle: string;
     authorsIds: string[];
-    genreId: string;
+    genreId: string | undefined;
 }
 
 export class ApiException extends Error {

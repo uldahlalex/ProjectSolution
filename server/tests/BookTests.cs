@@ -48,11 +48,11 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
 
         var dto = new UpdateBookRequestDto()
         {
-            Pages = 81,
-            Title = "New title",
+            NewPageCout = 81,
+            NewTitle = "New title",
             GenreId = ctx.Genres.First().Id,
             AuthorsIds = new List<string>() { ctx.Authors.First().Id },
-            BookId = ctx.Books.First().Id
+            BookIdForLookupReference = ctx.Books.First().Id
         };
 
         var actual = await libraryService.UpdateBook(dto);
@@ -99,13 +99,14 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
     {
         //Existing data is using the "seeder" with 1 book, 1 author and 1 genre without any relations
         await seeder.Seed();
+        //add other things situationally
         
         var dto = new UpdateBookRequestDto()
         {
-            Pages = pages,
-            Title = title,
+            NewPageCout = pages,
+            NewTitle = title,
             GenreId = ctx.Genres.First().Id,
-            BookId = ctx.Books.First().Id,
+            BookIdForLookupReference = ctx.Books.First().Id,
             AuthorsIds = ctx.Authors.Select(a => a.Id).ToList()
         };
         await Assert.ThrowsAnyAsync<ValidationException>(async () => await libraryService.UpdateBook(dto));
@@ -122,10 +123,10 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         
         var dto = new UpdateBookRequestDto()
         {
-            Pages = 123,
-            Title = "New title",
+            NewPageCout = 123,
+            NewTitle = "New title",
             GenreId = genreId ?? ctx.Genres.First().Id,
-            BookId = bookId ?? ctx.Books.First().Id,
+            BookIdForLookupReference = bookId ?? ctx.Books.First().Id,
             AuthorsIds = new List<string>()
             {
                 authorsId ?? ctx.Authors.First().Id
