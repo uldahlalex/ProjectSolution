@@ -1,6 +1,6 @@
 using dataccess;
 
-namespace api.Etc.DTOs;
+namespace api.DTOs;
 
 public class AuthorDto
 {
@@ -11,7 +11,7 @@ public class AuthorDto
         Createdat = entity.Createdat;
         Books = entity.Books?.Select(b => new BookDto(b)).ToList() ?? new List<BookDto>();
     }
-    
+
     public string Id { get; set; } = null!;
 
     public string Name { get; set; } = null!;
@@ -19,5 +19,4 @@ public class AuthorDto
     public DateTime? Createdat { get; set; }
 
     public virtual ICollection<BookDto> Books { get; set; } = new List<BookDto>();
-
 }

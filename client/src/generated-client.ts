@@ -258,7 +258,7 @@ export interface CreateBookRequestDto {
 
 export interface UpdateBookRequestDto {
     bookIdForLookupReference: string;
-    newPageCout: number;
+    newPageCount: number;
     newTitle: string;
     authorsIds: string[];
     genreId: string | undefined;

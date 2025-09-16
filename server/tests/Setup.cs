@@ -1,3 +1,4 @@
+using api;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class Startup
             var options = new DbContextOptionsBuilder<MyDbContext>()
                 .UseNpgsql(connectionString)
                 .Options;
-            
+
             var ctx = new MyDbContext(options);
             ctx.Database.EnsureCreated();
             return ctx;

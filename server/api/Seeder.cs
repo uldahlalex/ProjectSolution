@@ -1,18 +1,18 @@
 using dataccess;
 
-namespace api.Etc;
+namespace api;
 
 public class Seeder(MyDbContext ctx) : ISeeder
 {
     public async Task Seed()
-    {   
+    {
         //Remove all before starting to add any
         ctx.Books.RemoveRange(ctx.Books);
         ctx.Authors.RemoveRange(ctx.Authors);
         ctx.Genres.RemoveRange(ctx.Genres);
         ctx.SaveChanges();
-        
-        var author = new Author()
+
+        var author = new Author
         {
             Createdat = DateTime.UtcNow,
             Id = "1",
@@ -20,7 +20,7 @@ public class Seeder(MyDbContext ctx) : ISeeder
         };
         ctx.Authors.Add(author);
         ctx.SaveChanges();
-        var book = new Book()
+        var book = new Book
         {
             Createdat = DateTime.UtcNow,
             Id = "1",
@@ -29,7 +29,7 @@ public class Seeder(MyDbContext ctx) : ISeeder
         };
         ctx.Books.Add(book);
         ctx.SaveChanges();
-        var genre = new Genre()
+        var genre = new Genre
         {
             Createdat = DateTime.UtcNow,
             Id = "1",
@@ -37,7 +37,6 @@ public class Seeder(MyDbContext ctx) : ISeeder
         };
         ctx.Genres.Add(genre);
         ctx.SaveChanges();
-        
     }
 }
 
