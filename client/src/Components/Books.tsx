@@ -1,11 +1,9 @@
 import {useAtom} from "jotai";
 import {AllAuthorsAtom, AllBooksAtom} from "../atoms/atoms.ts";
 import {useState} from "react";
-import {ApiException, type BookDto, type CreateBookRequestDto} from "../generated-client.ts";
-import {libraryApi} from "../api-clients.ts";
-import toast from "react-hot-toast";
-import type {ProblemDetails} from "../problemdetails.ts";
+import {type BookDto, type CreateBookRequestDto} from "../generated-client.ts";
 import {Book} from "./Book.tsx";
+import useLibraryCrud from "../useLibraryCrud.ts";
 
 export interface BookProps {
     book: BookDto
@@ -19,6 +17,7 @@ export default function Books() {
         pages: 1,
         title: "my amazing new book"
     });
+    const libraryCrud = useLibraryCrud();
     
 
     return <>
@@ -35,16 +34,7 @@ export default function Books() {
         <input value={createBookForm.pages} type="number" placeholder="page count" className="input"
                onChange={e => setCreateBookForm({...createBookForm, pages: Number.parseInt(e.target.value)})}/>
         <button className="btn btn-primary" onClick={() => {
-            libraryApi.createBook(createBookForm).then(r => {
-                setAllBooks([...books, r])
-                toast("Book created succesfully")
-            }).catch(e => {
-                if (e instanceof ApiException) {
-                    console.log(JSON.stringify(e))
-                    const problemDetails = JSON.parse(e.response) as ProblemDetails;
-                    toast(problemDetails.title)
-                }
-            })
+            libraryCrud.createBook(createBookForm);
         }}>Create book
         </button>
     </>

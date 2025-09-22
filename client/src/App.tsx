@@ -2,7 +2,6 @@ import {createBrowserRouter, RouterProvider} from "react-router";
 import Home from "./Components/Home.tsx";
 import {DevTools} from "jotai-devtools";
 import {useEffect} from "react";
-import {libraryApi} from "./api-clients.ts";
 import {useAtom} from "jotai";
 import 'jotai-devtools/styles.css'
 import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
@@ -12,36 +11,19 @@ import Genres from "./Components/Genres.tsx";
 import toast, {Toaster} from "react-hot-toast";
 import {ApiException} from "./generated-client.ts";
 import type {ProblemDetails} from "./problemdetails.ts";
+import useLibraryCrud from "./useLibraryCrud.ts";
 
 
 function App() {
 
-    const [, setAuthors] = useAtom(AllAuthorsAtom)
-    const [, setBooks] = useAtom(AllBooksAtom)
-    const [, setGenres] = useAtom(AllGenresAtom)
+    const libraryCrud = useLibraryCrud();
 
     useEffect(() => {
-        initializeData();
+        libraryCrud.getAuthors();
+        libraryCrud.getBooks();
+        libraryCrud.getGenres();
     }, [])
-
-    async function initializeData() {
-        try {
-            setAuthors(await libraryApi.getAuthors());
-            setBooks(await libraryApi.getBooks())
-            setGenres(await libraryApi.getGenres())
-        } catch (e) {
-            if (e instanceof ApiException) {
-                console.log(JSON.stringify(e))
-                const problemDetails = JSON.parse(e.response) as ProblemDetails;
-                toast(problemDetails.title)
-            } else {
-                toast.error("Error getting data from server")
-            }
-           
-        }
-    }
-
-
+    
 
 return (
     <>
