@@ -168,6 +168,194 @@
           }
         }
       }
+    },
+    "/CreateAuthor": {
+      "post": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_CreateAuthor",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAuthorRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/UpdateAuthor": {
+      "put": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_UpdateAuthor",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAuthorRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DeleteAuthor": {
+      "delete": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_DeleteAuthor",
+        "parameters": [
+          {
+            "name": "authorId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CreateGenre": {
+      "post": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_CreateGenre",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGenreDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DeleteGenre": {
+      "delete": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_DeleteGenre",
+        "parameters": [
+          {
+            "name": "genreId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/UpdateGenre": {
+      "put": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_UpdateGenre",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGenreRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenreDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -306,6 +494,75 @@
           "genreId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "CreateAuthorRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "UpdateAuthorRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "authorIdForLookup",
+          "newName",
+          "booksIds"
+        ],
+        "properties": {
+          "authorIdForLookup": {
+            "type": "string",
+            "minLength": 1
+          },
+          "newName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "booksIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateGenreDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "UpdateGenreRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "idToLookupBy",
+          "newName"
+        ],
+        "properties": {
+          "idToLookupBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "newName": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

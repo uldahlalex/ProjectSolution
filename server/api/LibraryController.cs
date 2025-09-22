@@ -42,4 +42,43 @@ public class LibraryController(ILibraryService libraryService) : ControllerBase
     {
         return await libraryService.DeleteBook(bookId);
     }
+
+    [HttpPost(nameof(CreateAuthor))]
+    public async Task<AuthorDto> CreateAuthor([FromBody] CreateAuthorRequestDto dto)
+    {
+        return await libraryService.CreateAuthor(dto);
+    }
+
+    [HttpPut(nameof(UpdateAuthor))]
+    public async Task<AuthorDto> UpdateAuthor([FromBody] UpdateAuthorRequestDto dto)
+    {
+        return await libraryService.UpdateAuthor(dto);
+    }
+
+    [HttpDelete(nameof(DeleteAuthor))]
+    public async Task<AuthorDto> DeleteAuthor([FromQuery] string authorId)
+    {
+        return await libraryService.DeleteAuthor(authorId);
+    }
+
+    [HttpPost(nameof(CreateGenre))]
+    public async Task<GenreDto> CreateGenre([FromBody] CreateGenreDto dto)
+    {
+        return await libraryService.CreateGenre(dto);
+    }
+
+    [HttpDelete(nameof(DeleteGenre))]
+    public async Task<GenreDto> DeleteGenre([FromQuery] string genreId)
+    {
+        return await libraryService.DeleteGenre(genreId);
+    }
+
+    [HttpPut(nameof(UpdateGenre))]
+    public async Task<GenreDto> UpdateGenre([FromBody] UpdateGenreRequestDto dto)
+    {
+        return await libraryService.UpdateGenre(dto);
+    }
+    
+    
+
 }
