@@ -115,15 +115,20 @@ export function Book(props: BookProps) {
                             </div>
 
                             <div className="divider"></div>
-                            <button
-                                className="btn btn-primary w-full gap-2"
+                            <div className="flex justify-evenly"><button
+                                className="btn btn-primary  gap-2"
                                 onClick={() => libraryCrud.updateBooks(updateBookForm)}
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
+                           
                                 Update Book
                             </button>
+                                <button
+                                    className="btn btn-error  gap-2"
+                                    onClick={() => libraryCrud.deleteBook(props.book.id!)}
+                                     >
+                                    Delete book
+                                </button></div>
+                            
                         </div>
                     </div>
                 </details>
