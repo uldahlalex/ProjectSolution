@@ -1,6 +1,7 @@
 import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
 import {useAtom} from "jotai";
 import type {
+    BookDto,
     CreateAuthorRequestDto,
     CreateBookRequestDto,
     CreateGenreDto,
@@ -10,6 +11,7 @@ import type {
 } from "./generated-client.ts";
 import {LibraryClient} from "./generated-client.ts";
 import customCatch from "./customCatch.ts";
+import toast from "react-hot-toast";
 
 const isProduction = import.meta.env.PROD;
 
@@ -38,6 +40,8 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setAuthors(duplicate);
             }
+            toast.success("Author updated successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -52,8 +56,11 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setBooks(duplicate);
             }
+            toast.success("Book updated successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
+            
         }
 
     }
@@ -67,6 +74,8 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setGenres(duplicate);
             }
+            toast.success("Genre updated successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -74,9 +83,11 @@ export default function useLibraryCrud() {
 
     async function deleteAuthor(id: string) {
         try {
-            await libraryApi.deleteAuthor(id);
+            const result = await libraryApi.deleteAuthor(id);
             const filtered = authors.filter(a => a.id !== id);
             setAuthors(filtered);
+            toast.success("Author deleted succesfully successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -84,9 +95,11 @@ export default function useLibraryCrud() {
 
     async function deleteBook(id: string) {
         try {
-            await libraryApi.deleteBook(id);
+            const result = await libraryApi.deleteBook(id);
             const filtered = books.filter(b => b.id !== id);
             setBooks(filtered);
+            toast.success("Book deleted successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -94,9 +107,11 @@ export default function useLibraryCrud() {
 
     async function deleteGenre(id: string) {
         try {
-            await libraryApi.deleteGenre(id);
+            const result = await libraryApi.deleteGenre(id);
             const filtered = genres.filter(g => g.id !== id);
             setGenres(filtered);
+            toast.success("Genre deleted successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -108,6 +123,8 @@ export default function useLibraryCrud() {
             const duplicate = [...authors];
             duplicate.push(result);
             setAuthors(duplicate);
+            toast.success("Author created successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -119,6 +136,8 @@ export default function useLibraryCrud() {
             const duplicate = [...books]
             duplicate.push(result);
             setBooks(duplicate);
+            toast.success("Book created successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }
@@ -130,6 +149,8 @@ export default function useLibraryCrud() {
             const duplicate = [...genres];
             duplicate.push(result);
             setGenres(duplicate);
+            toast.success("Genre created successfully");
+            return result;
         } catch (e: any) {
             customCatch(e);
         }

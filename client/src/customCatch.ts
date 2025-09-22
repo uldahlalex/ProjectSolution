@@ -6,6 +6,5 @@ export default function customCatch(e: any) {
     if (e instanceof ApiException) {
         const problemDetails = JSON.parse(e.response) as ProblemDetails;
         toast(problemDetails.title)
-        console.error("Error coming from API: "+problemDetails.title)
     }
 }
