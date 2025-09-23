@@ -1,6 +1,9 @@
-﻿namespace dataccess;
+﻿using System;
+using System.Collections.Generic;
 
-public class Book
+namespace dataccess;
+
+public partial class Book
 {
     public string Id { get; set; } = null!;
 
@@ -8,7 +11,7 @@ public class Book
 
     public int Pages { get; set; }
 
-    public DateTime? Createdat { get; set; }
+    public DateTime Createdat { get; set; }
 
     public string? Genreid { get; set; }
 

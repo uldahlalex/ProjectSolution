@@ -1,12 +1,15 @@
-﻿namespace dataccess;
+﻿using System;
+using System.Collections.Generic;
 
-public class Author
+namespace dataccess;
+
+public partial class Author
 {
     public string Id { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
-    public DateTime? Createdat { get; set; }
+    public DateTime Createdat { get; set; }
 
     public virtual ICollection<Book> Books { get; set; } = new List<Book>();
 }

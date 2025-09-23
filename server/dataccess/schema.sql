@@ -5,14 +5,14 @@ create table library.author
 (
     id        text primary key not null,
     name      text             not null,
-    createdAt timestamp with time zone
+    createdAt timestamp with time zone not null
 );
 
 create table library.genre
 (
     id        text primary key not null,
     name      text             not null,
-    createdAt timestamp with time zone
+    createdAt timestamp with time zone not null
 );
 
 create table library.book
@@ -20,7 +20,7 @@ create table library.book
     id        text primary key not null,
     title     text             not null,
     pages     int              not null,
-    createdAt timestamp with time zone,
+    createdAt timestamp with time zone not null,
     genreId   text             references library.genre (id) on delete set null
 );
 

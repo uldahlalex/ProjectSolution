@@ -20,7 +20,7 @@ public class AuthorTests(ILibraryService libraryService, MyDbContext ctx, ISeede
             NewName = "new Name"
         };
         var result = await libraryService.UpdateAuthor(updateRequest);
-        Assert.True(result.Books.Count == 1);
+        Assert.True(result.BookIds.Count == 1);
         Assert.True(result.Name == updateRequest.NewName);
         Assert.True(ctx.Books.Include(book => book.Authors).First().Authors.First().Name == updateRequest.NewName);
     }

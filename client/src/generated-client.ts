@@ -453,23 +453,23 @@ export class LibraryClient {
 export interface AuthorDto {
     id: string;
     name: string;
-    createdat: string | undefined;
-    books: BookDto[];
+    createdat: string;
+    bookIds: string[];
 }
 
 export interface BookDto {
     id: string;
     title: string;
     pages: number;
-    createdat: string | undefined;
-    genre: GenreDto | undefined;
+    createdat: string;
+    genreId: string | undefined;
     authorsIds: string[];
 }
 
 export interface GenreDto {
     id: string;
     name: string;
-    createdat: string | undefined;
+    createdat: string;
     books: string[];
 }
 

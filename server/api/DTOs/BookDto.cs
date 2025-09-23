@@ -10,7 +10,8 @@ public class BookDto
         Title = entity.Title;
         Pages = entity.Pages;
         Createdat = entity.Createdat;
-        if (entity.Genre != null) Genre = new GenreDto(entity.Genre);
+        if (entity.Genre != null)
+            GenreId = entity.Genreid;
         AuthorsIds = entity.Authors?.Select(a => a.Id).ToList() ?? new List<string>();
     }
 
@@ -20,9 +21,9 @@ public class BookDto
 
     public int Pages { get; set; }
 
-    public DateTime? Createdat { get; set; }
+    public DateTime Createdat { get; set; }
 
-    public virtual GenreDto? Genre { get; set; }
+    public string? GenreId { get; set; }
 
-    public virtual ICollection<string> AuthorsIds { get; set; } = new List<string>();
+    public List<string> AuthorsIds { get; set; }
 }

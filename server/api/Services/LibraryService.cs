@@ -51,14 +51,14 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
     {
         Validator.ValidateObject(dto, new ValidationContext(dto), true);
         var book = ctx.Books.First(b => b.Id == dto.BookIdForLookupReference);
-        ctx.Entry(book).Collection(b => b.Authors).Load();
+        await ctx.Entry(book).Collection(b => b.Authors).LoadAsync();
 
         book.Pages = dto.NewPageCount;
         book.Title = dto.NewTitle;
         book.Genre = dto.GenreId != null ? ctx.Genres.First(g => g.Id == dto.GenreId) : null;
 
         book.Authors.Clear();
-        dto.AuthorsIds?.ForEach(id => book.Authors.Add(ctx.Authors.First(a => a.Id == id)));
+        dto.AuthorsIds.ForEach(id => book.Authors.Add(ctx.Authors.First(a => a.Id == id)));
 
         await ctx.SaveChangesAsync();
         return new BookDto(book);
@@ -91,11 +91,11 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
     {
         Validator.ValidateObject(dto, new ValidationContext(dto), true);
         var author = ctx.Authors.First(a => a.Id == dto.AuthorIdForLookup);
-        ctx.Entry(author).Collection(e => e.Books).Load();
+        await ctx.Entry(author).Collection(e => e.Books).LoadAsync();
         author.Books.Clear();
         dto.BooksIds.ForEach(id => author.Books.Add(ctx.Books.First(b => b.Id == id)));
         author.Name = dto.NewName;
-        ctx.SaveChangesAsync();
+        await ctx.SaveChangesAsync();
         return new AuthorDto(author);
     }
 

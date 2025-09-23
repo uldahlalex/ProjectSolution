@@ -31,8 +31,6 @@ export default function useLibraryCrud() {
 
     async function updateAuthors(dto: UpdateAuthorRequestDto) {
         try {
-
-
             const result = await libraryApi.updateAuthor(dto);
             const index = authors.findIndex(a => a.id === result.id);
             if (index > -1) {
@@ -40,14 +38,15 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setAuthors(duplicate);
             }
-            result.books.forEach(book => {
-                const bookIndex = books.findIndex(b => b.id === book.id);
+            result.bookIds.forEach(bookId => {
+                const bookIndex = books.findIndex(b => b.id === bookId);
                 if (bookIndex > -1) {
                     const bookDuplicate = [...books];
-                    bookDuplicate[bookIndex] = book;
-                    setBooks(bookDuplicate);
+                    if (!bookDuplicate[bookIndex].authorsIds.includes(result.id!)) {
+                        bookDuplicate[bookIndex].authorsIds.push(result.id!);
+                        setBooks(bookDuplicate);
+                    }
                 }
-                
             })
             toast.success("Author updated successfully");
             return result;
@@ -65,46 +64,24 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setBooks(duplicate);
             }
-            result.authorsIds.forEach((authorId) => {
+            result.authorsIds.forEach(authorId => {
                 const authorIndex = authors.findIndex(a => a.id === authorId);
                 if (authorIndex > -1) {
                     const authorDuplicate = [...authors];
-                    const author = authorDuplicate[authorIndex];
-                    if (author.books) {
-                        const bookIndexInAuthor = author.books.findIndex(b => b.id === result.id);
-                        if (bookIndexInAuthor > -1) {
-                            author.books[bookIndexInAuthor] = result;
-                        } else {
-                            author.books.push(result);
-                        }
-                    } else {
-                        author.books = [result];
-                    }
-                    authorDuplicate[authorIndex] = author;
-                    setAuthors(authorDuplicate);
-                }
-            })
-            genres.forEach(g => {
-                if (g.id === result.genre?.id) {
-                    const genreIndex = genres.findIndex(genre => genre.id === g.id);
-                    if (genreIndex > -1) {
-                        const genreDuplicate = [...genres];
-                        const genre = genreDuplicate[genreIndex];
-                        if (genre.books) {
-                            const bookIndexInGenre = genre.books.findIndex(b => b === result.id);
-                            if (bookIndexInGenre > -1) {
-                                genre.books[bookIndexInGenre] = result.id;
-                            } else {
-                                genre.books.push(result.id);
-                            }
-                        } else {
-                            genre.books = [result.id];
-                        }
-                        genreDuplicate[genreIndex] = genre;
-                        setGenres(genreDuplicate);
+                    if (!authorDuplicate[authorIndex].bookIds.includes(result.id!)) {
+                        authorDuplicate[authorIndex].bookIds.push(result.id!);
+                        setAuthors(authorDuplicate);
                     }
                 }
             })
+            const genre = genres.findIndex(g => g.id == result.genreId)
+            if (genre > -1) {
+                const genreDuplicate = [...genres];
+                if (!genreDuplicate[genre].books.includes(result.id!)) {
+                    genreDuplicate[genre].books.push(result.id!);
+                    setGenres(genreDuplicate);
+                }
+            }
             toast.success("Book updated successfully");
             return result;
         } catch (e: any) {
@@ -123,19 +100,9 @@ export default function useLibraryCrud() {
                 duplicate[index] = result;
                 setGenres(duplicate);
             }
-            books.forEach(b => {
-                if (b.genre?.id === result.id) {
-                    const bookIndex = books.findIndex(book => book.id === b.id);
-                    if (bookIndex > -1) {
-                        const bookDuplicate = [...books];
-                        bookDuplicate[bookIndex] = {...b, genre: result};
-                        setBooks(bookDuplicate);
-                    }
-                }
-            })
+            
             toast.success("Genre updated successfully");
             return result;
-            
         } catch (e: any) {
             customCatch(e);
         }
@@ -146,17 +113,6 @@ export default function useLibraryCrud() {
             const result = await libraryApi.deleteAuthor(id);
             const filtered = authors.filter(a => a.id !== id);
             setAuthors(filtered);
-            books.forEach(b => {
-                if (b.authorsIds.includes(id)) {
-                    const bookIndex = books.findIndex(book => book.id === b.id);
-                    if (bookIndex > -1) {
-                        const bookDuplicate = [...books];
-                        const updatedAuthorIds = bookDuplicate[bookIndex].authorsIds.filter(aid => aid !== id);
-                        bookDuplicate[bookIndex] = {...b, authorsIds: updatedAuthorIds};
-                        setBooks(bookDuplicate);
-                    }
-                }
-            }  );
             toast.success("Author deleted succesfully successfully");
             return result;
         } catch (e: any) {
@@ -169,18 +125,6 @@ export default function useLibraryCrud() {
             const result = await libraryApi.deleteBook(id);
             const filtered = books.filter(b => b.id !== id);
             setBooks(filtered);
-            authors.forEach(a => {
-                if (a.books?.some(b => b.id === id)) {
-                    const authorIndex = authors.findIndex(author => author.id === a.id);
-                    if (authorIndex > -1) {
-                        const authorDuplicate = [...authors];
-                        const updatedBooks = authorDuplicate[authorIndex].books?.filter(b => b.id !== id) ?? [];
-                        authorDuplicate[authorIndex] = {...a, books: updatedBooks};
-                        setAuthors(authorDuplicate);
-                    }
-                }
-            }
-            );
             toast.success("Book deleted successfully");
             return result;
         } catch (e: any) {
@@ -193,16 +137,7 @@ export default function useLibraryCrud() {
             const result = await libraryApi.deleteGenre(id);
             const filtered = genres.filter(g => g.id !== id);
             setGenres(filtered);
-            books.forEach(b => {
-                if (b.genre?.id === id) {
-                    const bookIndex = books.findIndex(book => book.id === b.id);
-                    if (bookIndex > -1) {
-                        const bookDuplicate = [...books];
-                        bookDuplicate[bookIndex] = {...b, genre: undefined};
-                        setBooks(bookDuplicate);
-                    }
-                }
-            })
+            
             toast.success("Genre deleted successfully");
             return result;
         } catch (e: any) {

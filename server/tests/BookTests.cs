@@ -35,7 +35,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         Assert.True(actual.Createdat < DateTime.UtcNow);
         Assert.True(actual.Title == dto.Title);
         Assert.True(actual.Pages == dto.Pages);
-        Assert.True(actual.Genre == null);
+        Assert.True(actual.GenreId == null);
         Assert.True(actual.AuthorsIds.Count == 0);
     }
 
@@ -81,7 +81,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
 
         var actual = await libraryService.UpdateBook(dto);
         outputHelper.WriteLine(JsonSerializer.Serialize(actual));
-        Assert.True(actual.Genre.Id == ctx.Genres.First().Id);
+        Assert.True(actual.GenreId == ctx.Genres.First().Id);
         Assert.True(actual.AuthorsIds.First() == ctx.Authors.First().Id);
         Assert.True(actual.Pages == 81);
         Assert.True(actual.Title == "New title");

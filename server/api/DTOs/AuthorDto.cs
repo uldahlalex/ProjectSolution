@@ -9,14 +9,14 @@ public class AuthorDto
         Id = entity.Id;
         Name = entity.Name;
         Createdat = entity.Createdat;
-        Books = entity.Books?.Select(b => new BookDto(b)).ToList() ?? new List<BookDto>();
+        BookIds = entity.Books?.Select(b => b.Id).ToList() ?? new List<string>();
     }
 
     public string Id { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
-    public DateTime? Createdat { get; set; }
+    public DateTime Createdat { get; set; }
 
-    public virtual ICollection<BookDto> Books { get; set; } = new List<BookDto>();
+    public List<string> BookIds { get; set; } = new List<string>();
 }
