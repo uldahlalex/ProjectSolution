@@ -1,9 +1,8 @@
 import {useAtom} from "jotai";
 import {AllBooksAtom} from "../atoms/atoms.ts";
-import {type AuthorDto, type BookDto, type UpdateAuthorRequestDto} from "../generated-client.ts";
+import {type AuthorDto, type UpdateAuthorRequestDto} from "../generated-client.ts";
 import {useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
-import toast from "react-hot-toast";
 import type {AuthorProps} from "./AuthorProps.tsx";
 
 export function Author(props: AuthorProps) {
@@ -12,41 +11,47 @@ export function Author(props: AuthorProps) {
     const [updateAuthorForm, setUpdateAuthorForm] = useState<UpdateAuthorRequestDto>({
         authorIdForLookup: props.author.id!,
         newName: props.author.name!,
-        booksIds: props.author.books?.map(b => b.id!) || []
+        booksIds: props.author.bookIds
     });
 
-    function getBookTitlesFromIds(bookIds: string[]): string[] {
-        const filteredBooks = books.filter(b => bookIds.includes(b.id!));
-        return filteredBooks.map(b => b.title!);
-    }
+    const getBookTitlesFromIds: string[] = (function(){
+        return books.filter(b => props.author.bookIds.includes(b.id!) && b.authorsIds.includes(props.author.id))
+            .map(b => b.title!)
+    })();
 
-  
 
-    return <li className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
+    return <li
+        className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
         <div className="card-body p-6">
             <div className="flex justify-between items-start">
                 <div className="flex-1">
                     <h3 className="card-title text-lg font-bold text-primary mb-2">{props.author.name}</h3>
                     <div className="flex flex-col gap-1">
-                        <div className="badge badge-outline badge-sm">
-                            📚 {props.author.books?.length || 0} books
-                        </div>
-                        {props.author.books && props.author.books.length > 0 && (
-                            <div className="text-sm text-base-content/70">
-                                📖 Books: {getBookTitlesFromIds(props.author.books.map(b => b.id!)).join(', ')}
+
+                        {
+                            getBookTitlesFromIds.length > 0 ? (
+                                <div className="text-sm text-base-content/70">
+                                    📖 Books: {getBookTitlesFromIds.join(', ')}
+                                </div>
+                            ) : <div className="badge badge-outline badge-sm">
+                                Has not authored any books yet
                             </div>
-                        )}
+                        }
+
                     </div>
                 </div>
 
                 <details className="dropdown dropdown-left">
                     <summary className="btn btn-square btn-outline btn-sm hover:btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             className="w-4 h-4 stroke-current">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                         </svg>
                     </summary>
 
-                    <div className="dropdown-content menu bg-base-100 rounded-box z-10 w-80 p-4 shadow-xl border border-base-300">
+                    <div
+                        className="dropdown-content menu bg-base-100 rounded-box z-10 w-80 p-4 shadow-xl border border-base-300">
                         <div className="mb-4">
                             <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
                                 <span>✏️</span> Edit Author
@@ -65,12 +70,14 @@ export function Author(props: AuthorProps) {
                             </div>
 
                             <div className="form-control">
+
                                 <label className="label">
                                     <span className="label-text font-medium">Books</span>
                                 </label>
                                 <div className="space-y-2 max-h-32 overflow-y-auto">
                                     {books.map(b =>
-                                        <label key={b.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 cursor-pointer">
+                                        <label key={b.id}
+                                               className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 cursor-pointer">
                                             <input
                                                 className="checkbox checkbox-primary checkbox-sm"
                                                 type="checkbox"
@@ -79,7 +86,10 @@ export function Author(props: AuthorProps) {
                                                     const alreadyAssigned = updateAuthorForm.booksIds.includes(b.id!);
                                                     if (alreadyAssigned) {
                                                         const newBookIds = updateAuthorForm.booksIds.filter(id => id !== b.id);
-                                                        setUpdateAuthorForm({...updateAuthorForm, booksIds: newBookIds});
+                                                        setUpdateAuthorForm({
+                                                            ...updateAuthorForm,
+                                                            booksIds: newBookIds
+                                                        });
                                                         return;
                                                     }
                                                     const newBookIds = [...updateAuthorForm.booksIds, b.id!];

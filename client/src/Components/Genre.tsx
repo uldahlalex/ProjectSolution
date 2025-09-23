@@ -1,10 +1,9 @@
 import {useAtom} from "jotai";
 import {AllBooksAtom} from "../atoms/atoms.ts";
-import {type GenreDto, type UpdateGenreRequestDto} from "../generated-client.ts";
+import {type UpdateGenreRequestDto} from "../generated-client.ts";
 import type {GenreProps} from "./Genres.tsx";
 import {useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
-import toast from "react-hot-toast";
 
 export function Genre(props: GenreProps) {
     const [books] = useAtom(AllBooksAtom);
@@ -14,16 +13,9 @@ export function Genre(props: GenreProps) {
         newName: props.genre.name!
     });
 
-    function getBookTitlesFromIds(bookIds: string[]): string[] {
-        const filteredBooks = books.filter(b => bookIds.includes(b.id!));
-        return filteredBooks.map(b => b.title!);
-    }
-
-    function updateGenre(genre: GenreDto) {
-        libraryCrud.updateGenres(updateGenreForm).then(success => {
-            toast('Genre updated successfully');
-        })
-    }
+    const getBookTitlesFromIds=
+    books.filter(b => props.genre.books.includes(b.id!) && b.genreId == props.genre.id).map(b => b.title)
+    
 
     return <li className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
         <div className="card-body p-6">
@@ -31,14 +23,15 @@ export function Genre(props: GenreProps) {
                 <div className="flex-1">
                     <h3 className="card-title text-lg font-bold text-primary mb-2">{props.genre.name}</h3>
                     <div className="flex flex-col gap-1">
-                        <div className="badge badge-outline badge-sm">
-                            📚 {props.genre.books?.length || 0} books
-                        </div>
-                        {props.genre.books && props.genre.books.length > 0 && (
+                      
+                        {getBookTitlesFromIds.length > 0 ? (
                             <div className="text-sm text-base-content/70">
-                                📖 Books: {getBookTitlesFromIds(props.genre.books).join(', ')}
+                                📖 Books: {getBookTitlesFromIds.join(', ')}
                             </div>
-                        )}
+                        ) :   <div className="badge badge-outline badge-sm">
+                            No book has this genre yet
+                        </div>
+                        }
                     </div>
                 </div>
 
