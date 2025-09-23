@@ -1,15 +1,15 @@
 import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
 import {useAtom} from "jotai";
-import type {
-    BookDto,
-    CreateAuthorRequestDto,
-    CreateBookRequestDto,
-    CreateGenreDto,
-    UpdateAuthorRequestDto,
-    UpdateBookRequestDto,
-    UpdateGenreRequestDto
+import {
+    BookOrderBy,
+    type CreateAuthorRequestDto,
+    type CreateBookRequestDto,
+    type CreateGenreDto,
+    LibraryClient,
+    type UpdateAuthorRequestDto,
+    type UpdateBookRequestDto,
+    type UpdateGenreRequestDto
 } from "./generated-client.ts";
-import {LibraryClient} from "./generated-client.ts";
 import customCatch from "./customCatch.ts";
 import toast from "react-hot-toast";
 
@@ -196,7 +196,15 @@ export default function useLibraryCrud() {
     
     async function getBooks() {
         try {
-            const result = await libraryApi.getBooks();
+            const result = await libraryApi.getBooks({
+                orderBy: BookOrderBy.Author,
+                descending: true,
+                fullTextSearchFilter: "",
+                itemsPerPage: "100",
+                maxPageSize: 5,
+                minPageSize: 2,
+                page: ""
+            });
             setBooks(result);
         }
         catch (e: any) {

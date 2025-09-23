@@ -1,6 +1,6 @@
 import {useAtom} from "jotai";
 import {AllAuthorsAtom, AllBooksAtom} from "../atoms/atoms.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {type BookDto, type CreateBookRequestDto} from "../generated-client.ts";
 import {Book} from "./Book.tsx";
 import useLibraryCrud from "../useLibraryCrud.ts";
@@ -18,6 +18,10 @@ export default function Books() {
         title: "my amazing new book"
     });
     const libraryCrud = useLibraryCrud();
+    
+    useEffect(() => {
+        libraryCrud.getBooks();
+    })
     
 
     return <>

@@ -30,11 +30,23 @@
       }
     },
     "/GetBooks": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetBooks",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBooksParameters"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -374,10 +386,10 @@
             "type": "string",
             "format": "date-time"
           },
-          "bookIds": {
+          "books": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/BookDto"
             }
           }
         }
@@ -400,17 +412,111 @@
             "type": "string",
             "format": "date-time"
           },
-          "genreId": {
-            "type": "string",
-            "nullable": true
+          "genre": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BooksGenreDto"
+              }
+            ]
           },
-          "authorsIds": {
+          "authors": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/BooksAuthorDto"
             }
           }
         }
+      },
+      "BooksGenreDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdat": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BooksAuthorDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdat": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GetBooksParameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BookOrderBy"
+              }
+            ]
+          },
+          "descending": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "page": {
+            "type": "string",
+            "nullable": true
+          },
+          "itemsPerPage": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullTextSearchFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "minPageSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxPageSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "BookOrderBy": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Title",
+          "Author",
+          "PublishDate",
+          "PageCount",
+          "Rating"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
       },
       "GenreDto": {
         "type": "object",
@@ -429,7 +535,33 @@
           "books": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/GenresBooksDto"
+            }
+          }
+        }
+      },
+      "GenresBooksDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdat": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BooksAuthorDto"
             }
           }
         }

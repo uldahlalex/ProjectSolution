@@ -1,0 +1,2 @@
+1. full text searching
+2. filtering, ordering and pagination

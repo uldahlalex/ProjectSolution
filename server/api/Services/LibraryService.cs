@@ -8,15 +8,26 @@ namespace api.Services;
 
 public class LibraryService(MyDbContext ctx) : ILibraryService
 {
-    public Task<List<AuthorDto>> GetAuthors()
+    public async Task<List<AuthorDto>> GetAuthors(GetAuthorsParameters dto)
     {
-        return ctx.Authors
+        var allAuthors = ctx.Authors
             .Include(a => a.Books)
-            .ThenInclude(b => b.Genre)
-            .Select(a => new AuthorDto(a)).ToListAsync();
+            .ThenInclude(b => b.Genre);
+
+        var filteredAuthors = allAuthors
+            .Where(a => a.Name == null || a.Name.Contains(dto.FullTextSearchFilter ?? string.Empty));
+
+        var orderBy = dto.OrderBy;
+        var orderedAuthors = filteredAuthors.OrderBy(a => orderBy == AuthorOrderBy.Name ? a.Name : a.Createdat.ToString());
+
+        var paginatedAuthors = filteredAuthors.Skip(dto.StartAt).Take(dto.Limit);
+
+        var mappedAuthors = await orderedAuthors.Select(a => new AuthorDto(a)).ToListAsync();
+
+        return mappedAuthors;
     }
 
-    public Task<List<BookDto>> GetBooks()
+    public Task<List<BookDto>> GetBooks(GetBooksParameters dto)
     {
         return ctx.Books
             .Include(b => b.Genre)
@@ -24,7 +35,7 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
             .Select(b => new BookDto(b)).ToListAsync();
     }
 
-    public Task<List<GenreDto>> GetGenres()
+    public Task<List<GenreDto>> GetGenres(GetGenresParameters dto)
     {
         return ctx.Genres
             .Include(g => g.Books)

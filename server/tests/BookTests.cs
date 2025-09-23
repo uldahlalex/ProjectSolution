@@ -15,7 +15,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         //Existing data is using the "seeder" with 1 book, 1 author and 1 genre without any relations
         await seeder.Seed();
 
-        var actual = await libraryService.GetBooks();
+        var actual = await libraryService.GetBooks(null);
 
         Assert.Equal(actual.First().Id, ctx.Books.First().Id);
     }
@@ -35,8 +35,8 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         Assert.True(actual.Createdat < DateTime.UtcNow);
         Assert.True(actual.Title == dto.Title);
         Assert.True(actual.Pages == dto.Pages);
-        Assert.True(actual.GenreId == null);
-        Assert.True(actual.AuthorsIds.Count == 0);
+        Assert.True(actual.Genre.Id == null);
+        Assert.True(actual.Authors.Count == 0);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
             NewPageCount = 42,
             NewTitle = "bla"
         });
-        Assert.True(actual.AuthorsIds.Contains("1"));
+        Assert.Contains("1", actual.Authors.Select(s => s.Id));
         Assert.True(ctx.Books.First().Authors.First().Id == "1");
     }
 
@@ -81,8 +81,8 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
 
         var actual = await libraryService.UpdateBook(dto);
         outputHelper.WriteLine(JsonSerializer.Serialize(actual));
-        Assert.True(actual.GenreId == ctx.Genres.First().Id);
-        Assert.True(actual.AuthorsIds.First() == ctx.Authors.First().Id);
+        Assert.True(actual.Genre.Id == ctx.Genres.First().Id);
+        Assert.True(actual.Authors.First().Id == ctx.Authors.First().Id);
         Assert.True(actual.Pages == 81);
         Assert.True(actual.Title == "New title");
     }

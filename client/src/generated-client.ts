@@ -50,13 +50,17 @@ export class LibraryClient {
         return Promise.resolve<AuthorDto[]>(null as any);
     }
 
-    getBooks(): Promise<BookDto[]> {
+    getBooks(dto: GetBooksParameters): Promise<BookDto[]> {
         let url_ = this.baseUrl + "/GetBooks";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -454,7 +458,7 @@ export interface AuthorDto {
     id: string;
     name: string;
     createdat: string;
-    bookIds: string[];
+    books: BookDto[];
 }
 
 export interface BookDto {
@@ -462,15 +466,53 @@ export interface BookDto {
     title: string;
     pages: number;
     createdat: string;
-    genreId: string | undefined;
-    authorsIds: string[];
+    genre: BooksGenreDto | undefined;
+    authors: BooksAuthorDto[];
+}
+
+export interface BooksGenreDto {
+    id: string;
+    name: string;
+    createdat: string;
+}
+
+export interface BooksAuthorDto {
+    id: string;
+    name: string;
+    createdat: string;
+}
+
+export interface GetBooksParameters {
+    orderBy: BookOrderBy | undefined;
+    descending: boolean | undefined;
+    page: string | undefined;
+    itemsPerPage: string | undefined;
+    fullTextSearchFilter: string | undefined;
+    minPageSize: number | undefined;
+    maxPageSize: number | undefined;
+}
+
+export enum BookOrderBy {
+    Title = 0,
+    Author = 1,
+    PublishDate = 2,
+    PageCount = 3,
+    Rating = 4,
 }
 
 export interface GenreDto {
     id: string;
     name: string;
     createdat: string;
-    books: string[];
+    books: GenresBooksDto[];
+}
+
+export interface GenresBooksDto {
+    id: string;
+    title: string;
+    pages: number;
+    createdat: string;
+    authors: BooksAuthorDto[];
 }
 
 export interface CreateBookRequestDto {

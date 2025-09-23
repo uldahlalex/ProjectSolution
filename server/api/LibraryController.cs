@@ -7,22 +7,22 @@ namespace api;
 
 public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
-    [HttpGet(nameof(GetAuthors))]
-    public async Task<List<AuthorDto>> GetAuthors()
+    [HttpPost(nameof(GetAuthors))]
+    public async Task<List<AuthorDto>> GetAuthors([FromBody]GetAuthorsParameters dto)
     {
-        return await libraryService.GetAuthors();
+        return await libraryService.GetAuthors(dto);
     }
 
-    [HttpGet(nameof(GetBooks))]
-    public async Task<List<BookDto>> GetBooks()
+    [HttpPost(nameof(GetBooks))]
+    public async Task<List<BookDto>> GetBooks([FromBody]GetBooksParameters dto)
     {
-        return await libraryService.GetBooks();
+        return await libraryService.GetBooks(dto);
     }
 
-    [HttpGet(nameof(GetGenres))]
-    public async Task<List<GenreDto>> GetGenres()
+    [HttpPost(nameof(GetGenres))]
+    public async Task<List<GenreDto>> GetGenres([FromBody]GetGenresParameters dto)
     {
-        return await libraryService.GetGenres();
+        return await libraryService.GetGenres(dto);
     }
 
     [HttpPost(nameof(CreateBook))]
