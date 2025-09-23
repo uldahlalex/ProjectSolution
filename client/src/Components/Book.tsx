@@ -1,5 +1,5 @@
 import {useAtom} from "jotai";
-import {AllAuthorsAtom} from "../atoms/atoms.ts";
+import {AllAuthorsAtom, AllGenresAtom} from "../atoms/atoms.ts";
 import {type AuthorDto, type BookDto, type UpdateBookRequestDto} from "../generated-client.ts";
 import type {BookProps} from "./Books.tsx";
 import {useState} from "react";
@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 export function Book(props: BookProps) {
     const [authors] = useAtom(AllAuthorsAtom);
+    const [genres] = useAtom(AllGenresAtom);
     const libraryCrud = useLibraryCrud();
     const [updateBookForm, setUpdateBookForm] = useState<UpdateBookRequestDto>({
         authorsIds: authors.filter(a => props.book.authorsIds?.includes(a.id)).map(a => a.id!),
@@ -22,13 +23,7 @@ export function Book(props: BookProps) {
         const names = filtered.map(f => f.name!);
         return names;
     }
-
-    function updateBook(author: AuthorDto, book: BookDto) {
-        libraryCrud.updateBooks(updateBookForm).then(success => {
-            toast('Book updated successfully');
-        })
-
-    }
+    
 
     return <li className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
         <div className="card-body p-6">
@@ -113,6 +108,24 @@ export function Book(props: BookProps) {
                                     )}
                                 </div>
                             </div>
+
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text font-medium">Genre</span>
+                                </label>
+                                <div className="space-y-2 max-h-32 overflow-y-auto">
+                                    {
+                                        genres.map(g => {
+                                            return <div key={g.id}>{g.name}
+                                                <input type="radio" name="radio-1" className="radio" onChange={e => {
+                                                    setUpdateBookForm({...updateBookForm, genreId: g.id!})
+                                                }} defaultChecked={props.book.genre?.id == g.id} />
+                                            </div>
+                                        })
+                                    }
+                                </div>
+                            </div>
+
 
                             <div className="divider"></div>
                             <div className="flex justify-evenly"><button

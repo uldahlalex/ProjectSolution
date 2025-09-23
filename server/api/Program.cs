@@ -19,12 +19,13 @@ public class Program
         services.AddDbContext<MyDbContext>((services, options) =>
         {
             options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
+            
         });
         services.AddControllers();
         services.AddOpenApiDocument();
         services.AddCors();
         services.AddScoped<ILibraryService, LibraryService>();
-        services.AddScoped<ISeeder, Seeder>();
+        services.AddScoped<ISeeder, SeederWithRelations>();
         services.AddExceptionHandler<MyGlobalExceptionHandler>();
     }
 
@@ -44,11 +45,11 @@ public class Program
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
         app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
-        if (app.Environment.IsDevelopment())
+       // if (app.Environment.IsDevelopment())
             using (var scope = app.Services.CreateScope())
             {
                 var seeder = scope.ServiceProvider.GetService<ISeeder>();
-                if (seeder != null) seeder.Seed();
+                if (seeder != null) seeder.Seed().GetAwaiter().GetResult();
             }
 
         app.Run();

@@ -10,17 +10,25 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
 {
     public Task<List<AuthorDto>> GetAuthors()
     {
-        return ctx.Authors.Select(a => new AuthorDto(a)).ToListAsync();
+        return ctx.Authors
+            .Include(a => a.Books)
+            .ThenInclude(b => b.Genre)
+            .Select(a => new AuthorDto(a)).ToListAsync();
     }
 
     public Task<List<BookDto>> GetBooks()
     {
-        return ctx.Books.Select(b => new BookDto(b)).ToListAsync();
+        return ctx.Books
+            .Include(b => b.Genre)
+            .Include(b => b.Authors)
+            .Select(b => new BookDto(b)).ToListAsync();
     }
 
     public Task<List<GenreDto>> GetGenres()
     {
-        return ctx.Genres.Select(g => new GenreDto(g)).ToListAsync();
+        return ctx.Genres
+            .Include(g => g.Books)
+            .Select(g => new GenreDto(g)).ToListAsync();
     }
 
     public async Task<BookDto> CreateBook(CreateBookRequestDto dto)

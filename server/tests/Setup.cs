@@ -26,5 +26,7 @@ public class Startup
             ctx.Database.EnsureCreated();
             return ctx;
         });
+        services.RemoveAll(typeof(ISeeder));
+        services.AddScoped<ISeeder, Seeder>();
     }
 }

@@ -6,7 +6,6 @@ public class Seeder(MyDbContext ctx) : ISeeder
 {
     public async Task Seed()
     {
-        //Remove all before starting to add any
         ctx.Books.RemoveRange(ctx.Books);
         ctx.Authors.RemoveRange(ctx.Authors);
         ctx.Genres.RemoveRange(ctx.Genres);
