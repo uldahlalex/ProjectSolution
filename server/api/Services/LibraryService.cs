@@ -11,50 +11,109 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
 {
     public async Task<List<AuthorDto>> GetAuthors(GetAuthorsParameters dto)
     {
-        IIncludableQueryable<Author, Genre?> allAuthors = ctx.Authors
+        var query = ctx.Authors
             .Include(a => a.Books)
-            .ThenInclude(b => b.Genre);
+            .ThenInclude(b => b.Genre)
+            .AsQueryable();
 
-        IQueryable<Author> filteredAuthors = allAuthors;
+        // Apply filtering
         if (!string.IsNullOrWhiteSpace(dto.FullTextSearchFilter))
         {
-            filteredAuthors = allAuthors.Where(a =>
+            query = query.Where(a =>
                 EF.Functions.ToTsVector("english", a.Name + " " + (a.Name ?? ""))
                     .Matches(EF.Functions.PlainToTsQuery("english", dto.FullTextSearchFilter)));
         }
 
-        IQueryable<Author> orderedAuthors;
-        if (dto.OrderBy == AuthorOrderBy.Name)
-            orderedAuthors =filteredAuthors.OrderBy(a => a.Name);
-        else if (dto.OrderBy == AuthorOrderBy.CreatedAt)
-            orderedAuthors = filteredAuthors.OrderBy(a => a.Createdat);
-        else if (dto.OrderBy == AuthorOrderBy.NumberOfPublishedBooks)
-            orderedAuthors = filteredAuthors.OrderBy(a => a.Books.Count);
-        else
-            orderedAuthors = filteredAuthors.OrderBy(a => a.Name);
-        if (dto.Descending)
-            orderedAuthors = orderedAuthors.Reverse();
+        // Apply ordering
+        query = dto.OrderBy switch
+        {
+            AuthorOrderBy.Name => dto.Descending ? query.OrderByDescending(a => a.Name) : query.OrderBy(a => a.Name),
+            AuthorOrderBy.CreatedAt => dto.Descending ? query.OrderByDescending(a => a.Createdat) : query.OrderBy(a => a.Createdat),
+            AuthorOrderBy.NumberOfPublishedBooks => dto.Descending ? query.OrderByDescending(a => a.Books.Count) : query.OrderBy(a => a.Books.Count),
+            _ => dto.Descending ? query.OrderByDescending(a => a.Name) : query.OrderBy(a => a.Name)
+        };
 
-        var paginatedAuthors = orderedAuthors.Skip(dto.StartAt).Take(dto.Limit);
-
-        var mappedAuthors = await paginatedAuthors.Select(a => new AuthorDto(a)).ToListAsync();
-
-        return mappedAuthors;
+        // Apply pagination and execute
+        return await query
+            .Skip(dto.StartAt)
+            .Take(dto.Limit)
+            .Select(a => new AuthorDto(a))
+            .ToListAsync();
     }
 
-    public Task<List<BookDto>> GetBooks(GetBooksParameters dto)
+    public async Task<List<BookDto>> GetBooks(GetBooksParameters dto)
     {
-        return ctx.Books
+        var query = ctx.Books
             .Include(b => b.Genre)
             .Include(b => b.Authors)
-            .Select(b => new BookDto(b)).ToListAsync();
+            .AsQueryable();
+
+        // Apply filtering
+        if (!string.IsNullOrWhiteSpace(dto.FullTextSearchFilter))
+        {
+            query = query.Where(b =>
+                EF.Functions.ToTsVector("english", b.Title + " " + (b.Title ?? ""))
+                    .Matches(EF.Functions.PlainToTsQuery("english", dto.FullTextSearchFilter)));
+        }
+
+        // Apply page filtering
+        if (dto.BookPagesMinimum > 0)
+        {
+            query = query.Where(b => b.Pages >= dto.BookPagesMinimum);
+        }
+        if (dto.BookPagesMaximum < int.MaxValue)
+        {
+            query = query.Where(b => b.Pages <= dto.BookPagesMaximum);
+        }
+
+        // Apply ordering
+        query = dto.OrderBy switch
+        {
+            BookOrderBy.Title => dto.Descending ? query.OrderByDescending(b => b.Title) : query.OrderBy(b => b.Title),
+            BookOrderBy.Author => dto.Descending ? query.OrderByDescending(b => b.Authors.FirstOrDefault().Name) : query.OrderBy(b => b.Authors.FirstOrDefault().Name),
+            BookOrderBy.PageCount => dto.Descending ? query.OrderByDescending(b => b.Pages) : query.OrderBy(b => b.Pages),
+            BookOrderBy.CreatedAt => dto.Descending ? query.OrderByDescending(b => b.Createdat) : query.OrderBy(b => b.Createdat),
+            BookOrderBy.Genre => dto.Descending ? query.OrderByDescending(b => b.Genre.Name) : query.OrderBy(b => b.Genre.Name),
+            _ => dto.Descending ? query.OrderByDescending(b => b.Title) : query.OrderBy(b => b.Title)
+        };
+
+        // Apply pagination and execute
+        return await query
+            .Skip(dto.StartAt)
+            .Take(dto.Limit)
+            .Select(b => new BookDto(b))
+            .ToListAsync();
     }
 
-    public Task<List<GenreDto>> GetGenres(GetGenresParameters dto)
+    public async Task<List<GenreDto>> GetGenres(GetGenresParameters dto)
     {
-        return ctx.Genres
+        var query = ctx.Genres
             .Include(g => g.Books)
-            .Select(g => new GenreDto(g)).ToListAsync();
+            .AsQueryable();
+
+        // Apply filtering
+        if (!string.IsNullOrWhiteSpace(dto.FullTextSearchFilter))
+        {
+            query = query.Where(g =>
+                EF.Functions.ToTsVector("english", g.Name + " " + (g.Name ?? ""))
+                    .Matches(EF.Functions.PlainToTsQuery("english", dto.FullTextSearchFilter)));
+        }
+
+        // Apply ordering
+        query = dto.OrderBy switch
+        {
+            GenreOrderBy.Name => dto.Descending ? query.OrderByDescending(g => g.Name) : query.OrderBy(g => g.Name),
+            GenreOrderBy.CreatedAt => dto.Descending ? query.OrderByDescending(g => g.Createdat) : query.OrderBy(g => g.Createdat),
+            GenreOrderBy.NumberOfBooksInGenre => dto.Descending ? query.OrderByDescending(g => g.Books.Count) : query.OrderBy(g => g.Books.Count),
+            _ => dto.Descending ? query.OrderByDescending(g => g.Name) : query.OrderBy(g => g.Name)
+        };
+
+        // Apply pagination and execute
+        return await query
+            .Skip(dto.StartAt)
+            .Take(dto.Limit)
+            .Select(g => new GenreDto(g))
+            .ToListAsync();
     }
 
     public async Task<BookDto> CreateBook(CreateBookRequestDto dto)

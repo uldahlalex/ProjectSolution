@@ -15,7 +15,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         //Existing data is using the "seeder" with 1 book, 1 author and 1 genre without any relations
         await seeder.Seed();
 
-        var actual = await libraryService.GetBooks(null);
+        var actual = await libraryService.GetBooks(new GetBooksParameters());
 
         Assert.Equal(actual.First().Id, ctx.Books.First().Id);
     }
@@ -35,7 +35,7 @@ public class BookTests(MyDbContext ctx, ILibraryService libraryService, ISeeder 
         Assert.True(actual.Createdat < DateTime.UtcNow);
         Assert.True(actual.Title == dto.Title);
         Assert.True(actual.Pages == dto.Pages);
-        Assert.True(actual.Genre.Id == null);
+        Assert.True(actual.Genre == null );
         Assert.True(actual.Authors.Count == 0);
     }
 
