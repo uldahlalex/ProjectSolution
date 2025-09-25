@@ -3,6 +3,7 @@ using api.DTOs;
 using api.DTOs.Requests;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace api.Services;
 
@@ -10,19 +11,33 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
 {
     public async Task<List<AuthorDto>> GetAuthors(GetAuthorsParameters dto)
     {
-        var allAuthors = ctx.Authors
+        IIncludableQueryable<Author, Genre?> allAuthors = ctx.Authors
             .Include(a => a.Books)
             .ThenInclude(b => b.Genre);
 
-        var filteredAuthors = allAuthors
-            .Where(a => a.Name == null || a.Name.Contains(dto.FullTextSearchFilter ?? string.Empty));
+        IQueryable<Author> filteredAuthors = allAuthors;
+        if (!string.IsNullOrWhiteSpace(dto.FullTextSearchFilter))
+        {
+            filteredAuthors = allAuthors.Where(a =>
+                EF.Functions.ToTsVector("english", a.Name + " " + (a.Name ?? ""))
+                    .Matches(EF.Functions.PlainToTsQuery("english", dto.FullTextSearchFilter)));
+        }
 
-        var orderBy = dto.OrderBy;
-        var orderedAuthors = filteredAuthors.OrderBy(a => orderBy == AuthorOrderBy.Name ? a.Name : a.Createdat.ToString());
+        IQueryable<Author> orderedAuthors;
+        if (dto.OrderBy == AuthorOrderBy.Name)
+            orderedAuthors =filteredAuthors.OrderBy(a => a.Name);
+        else if (dto.OrderBy == AuthorOrderBy.CreatedAt)
+            orderedAuthors = filteredAuthors.OrderBy(a => a.Createdat);
+        else if (dto.OrderBy == AuthorOrderBy.NumberOfPublishedBooks)
+            orderedAuthors = filteredAuthors.OrderBy(a => a.Books.Count);
+        else
+            orderedAuthors = filteredAuthors.OrderBy(a => a.Name);
+        if (dto.Descending)
+            orderedAuthors = orderedAuthors.Reverse();
 
-        var paginatedAuthors = filteredAuthors.Skip(dto.StartAt).Take(dto.Limit);
+        var paginatedAuthors = orderedAuthors.Skip(dto.StartAt).Take(dto.Limit);
 
-        var mappedAuthors = await orderedAuthors.Select(a => new AuthorDto(a)).ToListAsync();
+        var mappedAuthors = await paginatedAuthors.Select(a => new AuthorDto(a)).ToListAsync();
 
         return mappedAuthors;
     }

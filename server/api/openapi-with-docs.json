@@ -7,11 +7,23 @@
   },
   "paths": {
     "/GetAuthors": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetAuthors",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAuthorsParameters"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -65,11 +77,23 @@
       }
     },
     "/GetGenres": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetGenres",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetGenresParameters"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -460,45 +484,80 @@
           }
         }
       },
-      "GetBooksParameters": {
+      "GetAuthorsParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseGetParameters"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderBy": {
+                "$ref": "#/components/schemas/AuthorOrderBy"
+              }
+            }
+          }
+        ]
+      },
+      "AuthorOrderBy": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Name",
+          "CreatedAt",
+          "NumberOfPublishedBooks"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "BaseGetParameters": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "orderBy": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/BookOrderBy"
-              }
-            ]
-          },
           "descending": {
-            "type": "boolean",
-            "nullable": true
+            "type": "boolean"
           },
-          "page": {
-            "type": "string",
-            "nullable": true
+          "startAt": {
+            "type": "integer",
+            "format": "int32"
           },
-          "itemsPerPage": {
-            "type": "string",
-            "nullable": true
+          "limit": {
+            "type": "integer",
+            "format": "int32"
           },
           "fullTextSearchFilter": {
             "type": "string",
             "nullable": true
-          },
-          "minPageSize": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxPageSize": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           }
         }
+      },
+      "GetBooksParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseGetParameters"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderBy": {
+                "$ref": "#/components/schemas/BookOrderBy"
+              },
+              "bookPagesMinimum": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "bookPagesMaximum": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ]
       },
       "BookOrderBy": {
         "type": "integer",
@@ -506,9 +565,9 @@
         "x-enumNames": [
           "Title",
           "Author",
-          "PublishDate",
           "PageCount",
-          "Rating"
+          "CreatedAt",
+          "Genre"
         ],
         "enum": [
           0,
@@ -565,6 +624,36 @@
             }
           }
         }
+      },
+      "GetGenresParameters": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseGetParameters"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderBy": {
+                "$ref": "#/components/schemas/GenreOrderBy"
+              }
+            }
+          }
+        ]
+      },
+      "GenreOrderBy": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Name",
+          "CreatedAt",
+          "NumberOfBooksInGenre"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
       "CreateBookRequestDto": {
         "type": "object",

@@ -17,13 +17,17 @@ export class LibraryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAuthors(): Promise<AuthorDto[]> {
+    getAuthors(dto: GetAuthorsParameters): Promise<AuthorDto[]> {
         let url_ = this.baseUrl + "/GetAuthors";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -87,13 +91,17 @@ export class LibraryClient {
         return Promise.resolve<BookDto[]>(null as any);
     }
 
-    getGenres(): Promise<GenreDto[]> {
+    getGenres(dto: GetGenresParameters): Promise<GenreDto[]> {
         let url_ = this.baseUrl + "/GetGenres";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -482,22 +490,35 @@ export interface BooksAuthorDto {
     createdat: string;
 }
 
-export interface GetBooksParameters {
-    orderBy: BookOrderBy | undefined;
-    descending: boolean | undefined;
-    page: string | undefined;
-    itemsPerPage: string | undefined;
+export interface BaseGetParameters {
+    descending: boolean;
+    startAt: number;
+    limit: number;
     fullTextSearchFilter: string | undefined;
-    minPageSize: number | undefined;
-    maxPageSize: number | undefined;
+}
+
+export interface GetAuthorsParameters extends BaseGetParameters {
+    orderBy: AuthorOrderBy;
+}
+
+export enum AuthorOrderBy {
+    Name = 0,
+    CreatedAt = 1,
+    NumberOfPublishedBooks = 2,
+}
+
+export interface GetBooksParameters extends BaseGetParameters {
+    orderBy: BookOrderBy;
+    bookPagesMinimum: number;
+    bookPagesMaximum: number;
 }
 
 export enum BookOrderBy {
     Title = 0,
     Author = 1,
-    PublishDate = 2,
-    PageCount = 3,
-    Rating = 4,
+    PageCount = 2,
+    CreatedAt = 3,
+    Genre = 4,
 }
 
 export interface GenreDto {
@@ -513,6 +534,16 @@ export interface GenresBooksDto {
     pages: number;
     createdat: string;
     authors: BooksAuthorDto[];
+}
+
+export interface GetGenresParameters extends BaseGetParameters {
+    orderBy: GenreOrderBy;
+}
+
+export enum GenreOrderBy {
+    Name = 0,
+    CreatedAt = 1,
+    NumberOfBooksInGenre = 2,
 }
 
 export interface CreateBookRequestDto {

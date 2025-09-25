@@ -1,3 +1,4 @@
+using api.DTOs.Requests;
 using api.Services;
 using dataccess;
 
@@ -17,7 +18,7 @@ public class LibraryGetAllTests(ILibraryService libraryService, MyDbContext ctx)
         ctx.Authors.Add(author);
         ctx.SaveChanges();
 
-        var actual = await libraryService.GetAuthors();
+        var actual = await libraryService.GetAuthors(new GetAuthorsParameters());
 
         Assert.Equal(actual.First().Id, author.Id);
     }
@@ -35,7 +36,7 @@ public class LibraryGetAllTests(ILibraryService libraryService, MyDbContext ctx)
         ctx.Genres.Add(genre);
         ctx.SaveChanges();
 
-        var actual = await libraryService.GetGenres();
+        var actual = await libraryService.GetGenres(new GetGenresParameters());
 
         Assert.Equal(actual.First().Id, genre.Id);
     }

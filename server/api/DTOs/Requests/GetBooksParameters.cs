@@ -23,54 +23,68 @@ public enum GenreOrderBy
     NumberOfBooksInGenre
 }
 
-public record BaseGetParameters
-{
-    public BaseGetParameters(bool descending, int startAt, int limit, string? fullTextSearchFilter = null)
-    {
-        Descending = descending;
-        if(limit==0) 
-            limit = 25;
-        FullTextSearchFilter = fullTextSearchFilter;
-    }
-
-    public bool Descending { get; set; } = false;
-    public int StartAt { get; set; } = 0;
-    public int Limit { get; set; } = 5;
-    public string? FullTextSearchFilter { get; set; }
-}
-public record GetBooksParameters : BaseGetParameters
-{
-    public GetBooksParameters(BookOrderBy orderBy, int bookPagesMinimum, int bookPagesMaximum, bool descending, int startAt, int limit, string? fullTextSearchFilter = null) : base(descending, startAt, limit, fullTextSearchFilter)
-    {
-        OrderBy = orderBy;
-        BookPagesMinimum = bookPagesMinimum;
-        BookPagesMaximum = bookPagesMaximum;
-    }
-
-    public BookOrderBy OrderBy { get; set; }
-    public int BookPagesMinimum { get; set; }
-    public int BookPagesMaximum { get; set; }
-}
 
 
-public record GetAuthorsParameters : BaseGetParameters
-{
-    public GetAuthorsParameters(AuthorOrderBy orderBy, bool descending, int startAt, int limit, string? fullTextSearchFilter = null) : base(descending, startAt, limit, fullTextSearchFilter)
-    {
-        OrderBy = orderBy;
-    }
 
-    public AuthorOrderBy OrderBy { get; set; }
-    
-}
 
 public record GetGenresParameters : BaseGetParameters
 {
-    public GetGenresParameters(GenreOrderBy orderBy, bool descending, int startAt, int limit, string? fullTextSearchFilter = null) : base(descending, startAt, limit, fullTextSearchFilter)
+    public GetGenresParameters(GenreOrderBy orderBy = GenreOrderBy.Name, bool descending = false, int startAt = 0, int limit = 25, string? fullTextSearchFilter = null) 
+        : base(descending, startAt, limit, fullTextSearchFilter)
     {
         OrderBy = orderBy;
     }
 
     public GenreOrderBy OrderBy { get; set; }
     
+}
+
+public record BaseGetParameters
+{
+    // Parameterless constructor for model binding
+    public BaseGetParameters() { }
+
+    // Optional constructor with parameters
+    public BaseGetParameters(bool descending = false, int startAt = 0, int limit = 25, string? fullTextSearchFilter = null)
+    {
+        Descending = descending;
+        StartAt = startAt;
+        Limit = limit;
+        FullTextSearchFilter = fullTextSearchFilter;
+    }
+
+    public bool Descending { get; set; } = false;
+    public int StartAt { get; set; } = 0;
+    public int Limit { get; set; } = 25;
+    public string? FullTextSearchFilter { get; set; }
+}
+
+public record GetAuthorsParameters : BaseGetParameters
+{
+    public GetAuthorsParameters() { }
+
+    public GetAuthorsParameters(AuthorOrderBy orderBy = AuthorOrderBy.Name, bool descending = false, int startAt = 0, int limit = 25, string? fullTextSearchFilter = null) 
+        : base(descending, startAt, limit, fullTextSearchFilter)
+    {
+        OrderBy = orderBy;
+    }
+
+    public AuthorOrderBy OrderBy { get; set; } = AuthorOrderBy.Name;
+}
+
+public record GetBooksParameters : BaseGetParameters
+{
+    public GetBooksParameters() { }
+
+    public GetBooksParameters(BookOrderBy orderBy = BookOrderBy.Title, bool descending = false, int startAt = 0, int limit = 25, string? fullTextSearchFilter = null, int bookPagesMinimum = 0, int bookPagesMaximum = int.MaxValue) 
+        : base(descending, startAt, limit, fullTextSearchFilter)
+    {
+        OrderBy = orderBy;
+        BookPagesMinimum = bookPagesMinimum;
+        BookPagesMaximum = bookPagesMaximum;
+    }
+
+    public BookOrderBy OrderBy { get; set; } = BookOrderBy.Title;
+    public int BookPagesMinimum { get; set; } = 0;
+    public int BookPagesMaximum { get; set; } = int.MaxValue;
 }

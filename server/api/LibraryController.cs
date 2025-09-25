@@ -1,14 +1,17 @@
+using System.Text.Json;
 using api.DTOs;
 using api.DTOs.Requests;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
+using NSwag;
+using NSwag.Annotations;
 
 namespace api;
 
 public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
     [HttpPost(nameof(GetAuthors))]
-    public async Task<List<AuthorDto>> GetAuthors([FromBody]GetAuthorsParameters dto)
+    public async Task<List<AuthorDto>> GetAuthors([FromBody] GetAuthorsParameters dto)
     {
         return await libraryService.GetAuthors(dto);
     }
