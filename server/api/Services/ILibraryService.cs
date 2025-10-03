@@ -1,11 +1,12 @@
 using api.DTOs;
 using api.DTOs.Requests;
+using dataccess;
 
 namespace api.Services;
 
 public interface ILibraryService
 {
-    Task<List<AuthorDto>> GetAuthors();
+    Task<List<Author>> GetAuthors(int skip = 0, int take = Int32.MaxValue);
     Task<List<BookDto>> GetBooks();
     Task<List<GenreDto>> GetGenres();
     Task<BookDto> CreateBook(CreateBookRequestDto dto);
@@ -17,4 +18,5 @@ public interface ILibraryService
     Task<GenreDto> CreateGenre(CreateGenreDto dto);
     Task<GenreDto> DeleteGenre(string genreId);
     Task<GenreDto> UpdateGenre(UpdateGenreRequestDto dto);
+    Task<List<AuthorDto>> GetAuthorDtos();
 }

@@ -21,7 +21,7 @@ const dev = "http://localhost:5284";
 const finalUrl = isProduction ? prod : dev;
 
 
-const libraryApi = new LibraryClient(finalUrl)
+export const libraryApi = new LibraryClient(finalUrl)
 
 export default function useLibraryCrud() {
 
@@ -186,7 +186,7 @@ export default function useLibraryCrud() {
     
     async function getAuthors() {
         try {
-            const result = await libraryApi.getAuthors();
+            const result = await libraryApi.getAuthorDtos();
             setAuthors(result);
         }
         catch (e: any) {

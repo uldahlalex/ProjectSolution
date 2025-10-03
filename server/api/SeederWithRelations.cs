@@ -35,12 +35,24 @@ public class SeederWithRelations(MyDbContext ctx) : ISeeder
         ctx.Genres.Add(genre);
         await ctx.SaveChangesAsync();
 
-        var author = new Author
+        for (int i = 2; i < 11; i++)
+        {
+                    var author = new Author
+                    {
+                        Createdat = DateTime.UtcNow,
+                        Id = i+"",
+                        Name = "Bob"
+                    };
+                    ctx.Authors.Add(author);
+        }
+        
+        var a = new Author
         {
             Createdat = DateTime.UtcNow,
             Id = "1",
             Name = "Bob"
         };
+        ctx.Authors.Add(a);
      
         var book = new Book
         {
@@ -51,12 +63,12 @@ public class SeederWithRelations(MyDbContext ctx) : ISeeder
             Genre = genre,
             Authors = new List<Author>()
             {
-                author
+                
+                a
             }
         };
-        ctx.Authors.Add(author);
         ctx.Books.Add(book);
-      
+
         await ctx.SaveChangesAsync();
 
     }

@@ -8,12 +8,15 @@ namespace api.Services;
 
 public class LibraryService(MyDbContext ctx) : ILibraryService
 {
-    public Task<List<AuthorDto>> GetAuthors()
+    public Task<List<Author>> GetAuthors(int skip, int take)
     {
         return ctx.Authors
             .Include(a => a.Books)
             .ThenInclude(b => b.Genre)
-            .Select(a => new AuthorDto(a)).ToListAsync();
+            .Skip(skip)
+            .Take(take)
+            //.Select(a => new AuthorDto(a))
+            .ToListAsync();
     }
 
     public Task<List<BookDto>> GetBooks()
@@ -138,5 +141,14 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
         genre.Name = dto.NewName;
         await ctx.SaveChangesAsync();
         return new GenreDto(genre);
+    }
+
+    public async Task<List<AuthorDto>> GetAuthorDtos()
+    {
+        return await ctx.Authors
+            .Include(a => a.Books)
+            .ThenInclude(b => b.Genre)
+            .Select(a => new AuthorDto(a))
+            .ToListAsync();
     }
 }

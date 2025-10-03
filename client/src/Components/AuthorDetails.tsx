@@ -5,7 +5,7 @@ import {useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
 import type {AuthorProps} from "./AuthorProps.tsx";
 
-export function Author(props: AuthorProps) {
+export function AuthorDetails(props: AuthorProps) {
     const [books] = useAtom(AllBooksAtom);
     const libraryCrud = useLibraryCrud();
     const [updateAuthorForm, setUpdateAuthorForm] = useState<UpdateAuthorRequestDto>({

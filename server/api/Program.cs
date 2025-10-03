@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using api.Services;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,10 @@ public class Program
             options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
             
         });
-        services.AddControllers();
+        services.AddControllers().AddJsonOptions(opts =>
+        {
+            opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        });
         services.AddOpenApiDocument();
         services.AddCors();
         services.AddScoped<ILibraryService, LibraryService>();

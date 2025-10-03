@@ -1,18 +1,27 @@
 import {useAtom} from "jotai";
 import {AllAuthorsAtom, AllBooksAtom} from "../atoms/atoms.ts";
-import {useState} from "react";
-import {type CreateAuthorRequestDto} from "../generated-client.ts";
-import {Author} from "./Author.tsx";
-import useLibraryCrud from "../useLibraryCrud.ts";
+import {useEffect, useState} from "react";
+import {type Author, type CreateAuthorRequestDto, LibraryClient} from "../generated-client.ts";
+import {AuthorDetails} from "./AuthorDetails.tsx";
+import useLibraryCrud, {libraryApi} from "../useLibraryCrud.ts";
+import {resolveRefs} from "dotnet-json-refs";
 
 export default function Authors() {
 
-    const [authors, setAllAuthors] = useAtom(AllAuthorsAtom);
+    //const [authors, setAllAuthors] = useAtom(AllAuthorsAtom);
+    const [authors, setAuthors] = useState<Author[]>([])
     const [books] = useAtom(AllBooksAtom);
     const [createAuthorForm, setCreateAuthorForm] = useState<CreateAuthorRequestDto>({
         name: "New Author"
     });
     const libraryCrud = useLibraryCrud();
+    
+    useEffect(() => {
+        libraryApi.getAuthors().then(result => {
+            const circularRefsHandled = resolveRefs(result);
+            setAuthors(circularRefsHandled)
+        })
+    }, [])
 
 
     return <>
@@ -55,7 +64,7 @@ export default function Authors() {
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
-                authors.map(a => <Author key={a.id} author={a} />)
+                authors.map(a => <AuthorDetails key={a.id} author={a} />)
             }
         </ul>
     </>

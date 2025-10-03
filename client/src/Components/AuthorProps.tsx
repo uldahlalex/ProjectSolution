@@ -1,5 +1,5 @@
-import type {AuthorDto} from "../generated-client.ts";
+import type {Author, AuthorDto} from "../generated-client.ts";
 
 export interface AuthorProps {
-    author: AuthorDto
+    author: Author
 }
