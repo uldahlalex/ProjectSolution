@@ -14,7 +14,7 @@
         "operationId": "Library_GetAuthors",
         "parameters": [
           {
-            "name": "skip",
+            "name": "Skip",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -23,13 +23,37 @@
             "x-position": 1
           },
           {
-            "name": "take",
+            "name": "Take",
             "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
             },
             "x-position": 2
+          },
+          {
+            "name": "Ordering",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/GetAuthorsOrdering"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Filters.Id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Filters.CombineWith",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/CombineType"
+            },
+            "x-position": 5
           }
         ],
         "responses": {
@@ -484,6 +508,32 @@
             }
           }
         }
+      },
+      "GetAuthorsOrdering": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Name",
+          "CreatedAt",
+          "NumberOfBooks"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "CombineType": {
+        "type": "integer",
+        "description": "Combining logic of queries.\n0 - And\n1 - Or",
+        "x-enumNames": [
+          "And",
+          "Or"
+        ],
+        "enum": [
+          0,
+          1
+        ]
       },
       "AuthorDto": {
         "type": "object",

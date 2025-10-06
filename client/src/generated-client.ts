@@ -17,16 +17,28 @@ export class LibraryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAuthors(skip: number | undefined, take: number | undefined): Promise<Author[]> {
+    getAuthors(skip: number | undefined, take: number | undefined, ordering: GetAuthorsOrdering | undefined, filters_Id: string | undefined, filters_CombineWith: CombineType | undefined): Promise<Author[]> {
         let url_ = this.baseUrl + "/GetAuthors?";
         if (skip === null)
             throw new globalThis.Error("The parameter 'skip' cannot be null.");
         else if (skip !== undefined)
-            url_ += "skip=" + encodeURIComponent("" + skip) + "&";
+            url_ += "Skip=" + encodeURIComponent("" + skip) + "&";
         if (take === null)
             throw new globalThis.Error("The parameter 'take' cannot be null.");
         else if (take !== undefined)
-            url_ += "take=" + encodeURIComponent("" + take) + "&";
+            url_ += "Take=" + encodeURIComponent("" + take) + "&";
+        if (ordering === null)
+            throw new globalThis.Error("The parameter 'ordering' cannot be null.");
+        else if (ordering !== undefined)
+            url_ += "Ordering=" + encodeURIComponent("" + ordering) + "&";
+        if (filters_Id === null)
+            throw new globalThis.Error("The parameter 'filters_Id' cannot be null.");
+        else if (filters_Id !== undefined)
+            url_ += "Filters.Id=" + encodeURIComponent("" + filters_Id) + "&";
+        if (filters_CombineWith === null)
+            throw new globalThis.Error("The parameter 'filters_CombineWith' cannot be null.");
+        else if (filters_CombineWith !== undefined)
+            url_ += "Filters.CombineWith=" + encodeURIComponent("" + filters_CombineWith) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -513,6 +525,18 @@ export interface Genre {
     name: string;
     createdat: string;
     books: Book[];
+}
+
+export enum GetAuthorsOrdering {
+    Name = 0,
+    CreatedAt = 1,
+    NumberOfBooks = 2,
+}
+
+/** Combining logic of queries. 0 - And 1 - Or */
+export enum CombineType {
+    And = 0,
+    Or = 1,
 }
 
 export interface AuthorDto {

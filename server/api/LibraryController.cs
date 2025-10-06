@@ -9,9 +9,9 @@ namespace api;
 public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
     [HttpGet(nameof(GetAuthors))]
-    public async Task<List<Author>> GetAuthors(int skip, int take)
+    public async Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto)
     {
-        return await libraryService.GetAuthors(skip, take);
+        return await libraryService.GetAuthors(dto);
     }
     [HttpGet(nameof(GetAuthorDtos))]
     public async Task<List<AuthorDto>> GetAuthorDtos()

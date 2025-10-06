@@ -17,7 +17,12 @@ public class LibraryGetAllTests(ILibraryService libraryService, MyDbContext ctx)
         ctx.Authors.Add(author);
         ctx.SaveChanges();
 
-        var actual = await libraryService.GetAuthors();
+        var actual = await libraryService.GetAuthors(new GetAuthorsRequestDto()
+        {
+            Ordering = GetAuthorsOrdering.Name,
+            Skip = 0,
+            Take = Int32.MaxValue
+        });
 
         Assert.Equal(actual.First().Id, author.Id);
     }

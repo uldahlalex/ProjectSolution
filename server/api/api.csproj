@@ -8,6 +8,9 @@
 
 
     <ItemGroup>
+        <PackageReference Include="AutoFilterer" Version="3.2.0" />
+        <PackageReference Include="AutoFilterer.Generators" Version="3.2.0" />
+        <PackageReference Include="AutoFilterer.Swagger" Version="3.2.0" />
         <PackageReference Include="NSwag.AspNetCore" Version="*"/>
         <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="*"/>
         <ProjectReference Include="..\dataccess\dataccess.csproj"/>

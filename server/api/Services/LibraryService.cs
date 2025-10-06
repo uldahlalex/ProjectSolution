@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using api.DTOs;
 using api.DTOs.Requests;
+using AutoFilterer.Extensions;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +9,23 @@ namespace api.Services;
 
 public class LibraryService(MyDbContext ctx) : ILibraryService
 {
-    public Task<List<Author>> GetAuthors(int skip, int take)
+    public async Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto)
     {
-        return ctx.Authors
+        IQueryable<Author> query = ctx.Authors
             .Include(a => a.Books)
-            .ThenInclude(b => b.Genre)
-            .Skip(skip)
-            .Take(take)
-            //.Select(a => new AuthorDto(a))
-            .ToListAsync();
+            .ThenInclude(b => b.Genre);
+
+        query = query.ApplyFilter(dto.Filtering);
+        
+
+        if (dto.Ordering == GetAuthorsOrdering.Name)
+            query = query.OrderBy(a => a.Name);
+        else if (dto.Ordering == GetAuthorsOrdering.NumberOfBooks)
+            query = query.OrderByDescending(a => a.Books.Count);
+
+        query = query.Skip(dto.Skip)
+            .Take(dto.Take);
+        return query.ToList();
     }
 
     public Task<List<BookDto>> GetBooks()
