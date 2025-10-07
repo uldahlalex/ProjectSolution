@@ -491,9 +491,6 @@
           },
           "ordering": {
             "$ref": "#/components/schemas/AuthorOrderingOptions"
-          },
-          "descending": {
-            "type": "boolean"
           }
         }
       },

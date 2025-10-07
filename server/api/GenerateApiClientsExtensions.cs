@@ -37,7 +37,8 @@ public static class GenerateApiClientsExtensions
                 GenerateCloneMethod = false,
                 MarkOptionalProperties = false,
                 GenerateConstructorInterface = true,
-                ConvertConstructorInterfaceData = true
+                ConvertConstructorInterfaceData = true,
+                EnumStyle = TypeScriptEnumStyle.StringLiteral
             }
         };
 

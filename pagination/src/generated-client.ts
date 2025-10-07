@@ -17,21 +17,17 @@ export class LibraryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAuthors(skip: number | undefined, take: number | undefined): Promise<Author[]> {
-        let url_ = this.baseUrl + "/GetAuthors?";
-        if (skip === null)
-            throw new globalThis.Error("The parameter 'skip' cannot be null.");
-        else if (skip !== undefined)
-            url_ += "skip=" + encodeURIComponent("" + skip) + "&";
-        if (take === null)
-            throw new globalThis.Error("The parameter 'take' cannot be null.");
-        else if (take !== undefined)
-            url_ += "take=" + encodeURIComponent("" + take) + "&";
+    getAuthors(dto: GetAuthorsRequestDto): Promise<Author[]> {
+        let url_ = this.baseUrl + "/GetAuthors";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -514,6 +510,14 @@ export interface Genre {
     createdat: string;
     books: Book[];
 }
+
+export interface GetAuthorsRequestDto {
+    skip: number;
+    take: number;
+    ordering: AuthorOrderingOptions;
+}
+
+export type AuthorOrderingOptions = 0 | 1;
 
 export interface AuthorDto {
     id: string;
