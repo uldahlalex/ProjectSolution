@@ -25,8 +25,15 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
         
             //Chunking / pagination
             query = query.Skip(dto.Skip).Take(dto.Take);
+            
+            //return som POJO
+            var list = await query.ToListAsync();
+            if (dto.Descending)
+            {
+                list.Reverse();
+            }
 
-            return await query.ToListAsync();
+            return list;
     }
 
     public Task<List<BookDto>> GetBooks()
@@ -168,6 +175,7 @@ public record GetAuthorsRequestDto
     public int Skip { get; set; }
     public int Take { get; set; }
     public AuthorOrderingOptions Ordering { get; set; }
+    public bool Descending { get; set; }
 }
 
 public enum AuthorOrderingOptions
