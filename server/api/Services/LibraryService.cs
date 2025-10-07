@@ -18,20 +18,17 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
         //Filtering
         
         //Ordering / sorting
-        if(dto.Ordering == AuthorOrderingOptions.Name)
-            query = query.OrderBy(a => a.Name);
-        if (dto.Ordering == AuthorOrderingOptions.NumberOfBooksPublished)
+        if (dto.Ordering == AuthorOrderingOptions.Name)
+            query = query.OrderBy(a => a.Name)
+                .ThenBy(a => a.Createdat);
+        else if (dto.Ordering == AuthorOrderingOptions.NumberOfBooksPublished)
             query = query.OrderByDescending(a => a.Books.Count);
         
             //Chunking / pagination
             query = query.Skip(dto.Skip).Take(dto.Take);
             
-            //return som POJO
+            //return som POCO
             var list = await query.ToListAsync();
-            if (dto.Descending)
-            {
-                list.Reverse();
-            }
 
             return list;
     }
@@ -175,7 +172,6 @@ public record GetAuthorsRequestDto
     public int Skip { get; set; }
     public int Take { get; set; }
     public AuthorOrderingOptions Ordering { get; set; }
-    public bool Descending { get; set; }
 }
 
 public enum AuthorOrderingOptions
