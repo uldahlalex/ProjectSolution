@@ -8,15 +8,32 @@ namespace api.Services;
 
 public class LibraryService(MyDbContext ctx) : ILibraryService
 {
-    public Task<List<Author>> GetAuthors(int skip, int take)
+    public async Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto)
     {
-        return ctx.Authors
+        //Vælg hvilke tabeller og entiteter som skal trækkes ud
+        IQueryable<Author> query = ctx.Authors
             .Include(a => a.Books)
-            .ThenInclude(b => b.Genre)
-            .Skip(skip)
-            .Take(take)
-            //.Select(a => new AuthorDto(a))
-            .ToListAsync();
+            .ThenInclude(b => b.Genre);
+        
+        //Filtering
+        
+        //Ordering / sorting
+        if(dto.Ordering == AuthorOrderingOptions.Name)
+            query = query.OrderBy(a => a.Name);
+        if (dto.Ordering == AuthorOrderingOptions.NumberOfBooksPublished)
+            query = query.OrderByDescending(a => a.Books.Count);
+        
+            //Chunking / pagination
+            query = query.Skip(dto.Skip).Take(dto.Take);
+            
+            //return som POJO
+            var list = await query.ToListAsync();
+            if (dto.Descending)
+            {
+                list.Reverse();
+            }
+
+            return list;
     }
 
     public Task<List<BookDto>> GetBooks()
@@ -151,4 +168,18 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
             .Select(a => new AuthorDto(a))
             .ToListAsync();
     }
+}
+
+public record GetAuthorsRequestDto
+{
+    public int Skip { get; set; }
+    public int Take { get; set; }
+    public AuthorOrderingOptions Ordering { get; set; }
+    public bool Descending { get; set; }
+}
+
+public enum AuthorOrderingOptions
+{
+    Name,
+    NumberOfBooksPublished,
 }

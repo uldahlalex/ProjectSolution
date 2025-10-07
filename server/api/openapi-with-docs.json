@@ -7,31 +7,23 @@
   },
   "paths": {
     "/GetAuthors": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetAuthors",
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAuthorsRequestDto"
+              }
+            }
           },
-          {
-            "name": "take",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -484,6 +476,38 @@
             }
           }
         }
+      },
+      "GetAuthorsRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "take": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ordering": {
+            "$ref": "#/components/schemas/AuthorOrderingOptions"
+          },
+          "descending": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AuthorOrderingOptions": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Name",
+          "NumberOfBooksPublished"
+        ],
+        "enum": [
+          0,
+          1
+        ]
       },
       "AuthorDto": {
         "type": "object",

@@ -48,7 +48,7 @@ public class Program
         app.UseSwaggerUi();
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
-        app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
+        app.GenerateApiClientsFromOpenApi("/../../pagination/src/generated-client.ts").GetAwaiter().GetResult();
        // if (app.Environment.IsDevelopment())
             using (var scope = app.Services.CreateScope())
             {

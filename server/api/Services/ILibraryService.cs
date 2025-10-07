@@ -6,7 +6,7 @@ namespace api.Services;
 
 public interface ILibraryService
 {
-    Task<List<Author>> GetAuthors(int skip = 0, int take = Int32.MaxValue);
+    Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto);
     Task<List<BookDto>> GetBooks();
     Task<List<GenreDto>> GetGenres();
     Task<BookDto> CreateBook(CreateBookRequestDto dto);
