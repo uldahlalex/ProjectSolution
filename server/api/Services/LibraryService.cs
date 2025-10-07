@@ -19,10 +19,10 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
         
         //Ordering / sorting
         if (dto.Ordering == AuthorOrderingOptions.Name)
-            query = query.OrderBy(a => a.Name)
-                .ThenBy(a => a.Createdat);
+            query = query.OrderBy(a => a.Name);
         else if (dto.Ordering == AuthorOrderingOptions.NumberOfBooksPublished)
-            query = query.OrderByDescending(a => a.Books.Count);
+            query = query.OrderByDescending(a => a.Books.Count)
+                .ThenBy(a => a.Name);
         
             //Chunking / pagination
             query = query.Skip(dto.Skip).Take(dto.Take);

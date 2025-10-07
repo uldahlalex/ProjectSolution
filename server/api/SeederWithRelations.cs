@@ -35,13 +35,13 @@ public class SeederWithRelations(MyDbContext ctx) : ISeeder
         ctx.Genres.Add(genre);
         await ctx.SaveChangesAsync();
 
-        for (int i = 2; i < 11; i++)
+        for (int i = 1; i < 10; i++)
         {
                     var author = new Author
                     {
-                        Createdat = DateTime.UtcNow,
+                        Createdat = DateTime.UtcNow.AddMinutes(i),
                         Id = i+"",
-                        Name = "Bob"
+                        Name = "Bob_"+i
                     };
                     ctx.Authors.Add(author);
         }
@@ -49,8 +49,8 @@ public class SeederWithRelations(MyDbContext ctx) : ISeeder
         var a = new Author
         {
             Createdat = DateTime.UtcNow,
-            Id = "1",
-            Name = "Bob"
+            Id = "0",
+            Name = "Bob_0"
         };
         ctx.Authors.Add(a);
      
