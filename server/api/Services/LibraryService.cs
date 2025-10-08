@@ -10,6 +10,8 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
 {
     public async Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto)
     {
+        Validator.ValidateObject(dto, new ValidationContext(dto), true);
+        
         //Vælg hvilke tabeller og entiteter som skal trækkes ud
         IQueryable<Author> query = ctx.Authors
             .Include(a => a.Books)
@@ -169,7 +171,9 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
 
 public record GetAuthorsRequestDto
 {
+    [Range(0, Int32.MaxValue)]
     public int Skip { get; set; }
+    [Range(1, 100)]
     public int Take { get; set; }
     public AuthorOrderingOptions Ordering { get; set; }
 }
