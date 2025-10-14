@@ -3,7 +3,7 @@ import {type Author} from "./generated-client.ts";
 import {useNavigate, useSearchParams} from "react-router";
 import {resolveRefs} from "dotnet-json-refs";
 import {apiClient} from "./App.tsx";
-import {SieveQueryBuilder} from '../../tssievequerybuilder/src/index.ts';
+import {SieveQueryBuilder} from "ts-sieve-query-builder";
 
 export function PaginatedAuthors() {
 
@@ -13,7 +13,7 @@ export function PaginatedAuthors() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        var q = SieveQueryBuilder.create<Author>()
+        const q = SieveQueryBuilder.create<Author>()
             .filterContains("name", "Bob_5")
             .sortBy("name")
             .buildFiltersString();
