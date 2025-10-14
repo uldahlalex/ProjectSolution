@@ -1,12 +1,14 @@
 using api.DTOs;
 using api.DTOs.Requests;
 using dataccess;
+using Sieve.Models;
 
 namespace api.Services;
 
 public interface ILibraryService
 {
     Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto);
+    Task<List<Author>> GetAuthorsSieve(GetAuthorsSieveRequestDto dto);
     Task<List<BookDto>> GetBooks();
     Task<List<GenreDto>> GetGenres();
     Task<BookDto> CreateBook(CreateBookRequestDto dto);
@@ -19,4 +21,5 @@ public interface ILibraryService
     Task<GenreDto> DeleteGenre(string genreId);
     Task<GenreDto> UpdateGenre(UpdateGenreRequestDto dto);
     Task<List<AuthorDto>> GetAuthorDtos();
+    Task<List<Author>> GetAuthorsSieveBasic(SieveModel sieveModel);
 }

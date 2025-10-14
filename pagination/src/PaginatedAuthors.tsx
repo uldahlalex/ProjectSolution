@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import type {Author, AuthorOrderingOptions} from "./generated-client.ts";
+import {type Author, AuthorOrderingOptions} from "./generated-client.ts";
 import {useNavigate, useSearchParams} from "react-router";
 import {resolveRefs} from "dotnet-json-refs";
 import {apiClient} from "./App.tsx";
@@ -16,9 +16,12 @@ export function PaginatedAuthors() {
 
     useEffect(() => {
         apiClient.getAuthors({
-            ordering: 1,
+            ordering: ordering,
             take: itemsPerPage,
-            skip: (itemsPerPage)*(pageNumber-1)
+            skip: (itemsPerPage)*(pageNumber-1),
+            filters: [{
+                
+            }]
         }).then(result => {
             setAuthors(resolveRefs(result));
         })
@@ -56,10 +59,12 @@ export function PaginatedAuthors() {
         }} defaultValue={itemsPerPage}/>
 
         <select defaultValue={ordering} onChange={e => {
+            console.log(e.target.value)
             navigate('./?itemsPerPage=' + itemsPerPage + '&pageNumber=' + pageNumber+'&ordering='+e.target.value)
         }}>
-            <option value={0}>Name</option>
-            <option value={1}>Number of books published</option>
+            <option value={AuthorOrderingOptions.Name}>Name</option>
+            <option value={AuthorOrderingOptions.NumberOfBooksPublished}>Number of books published</option>
+            <option value={AuthorOrderingOptions.NameDescending}>Name, descending</option>
         </select>
 
     </>

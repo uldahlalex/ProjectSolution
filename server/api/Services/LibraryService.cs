@@ -3,36 +3,52 @@ using api.DTOs;
 using api.DTOs.Requests;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
+using Sieve.Models;
+using Sieve.Services;
 
 namespace api.Services;
 
-public class LibraryService(MyDbContext ctx) : ILibraryService
+public class LibraryService(MyDbContext ctx, ISieveProcessor sieveProcessor) : ILibraryService
 {
     public async Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto)
     {
         Validator.ValidateObject(dto, new ValidationContext(dto), true);
-        
-        //Vælg hvilke tabeller og entiteter som skal trækkes ud
+
+        //Select data to extract
         IQueryable<Author> query = ctx.Authors
             .Include(a => a.Books)
             .ThenInclude(b => b.Genre);
-        
-        //Filtering
-        
-        //Ordering / sorting
-        if (dto.Ordering == AuthorOrderingOptions.Name)
-            query = query.OrderBy(a => a.Name);
-        else if (dto.Ordering == AuthorOrderingOptions.NumberOfBooksPublished)
-            query = query.OrderByDescending(a => a.Books.Count)
-                .ThenBy(a => a.Name);
-        
-            //Chunking / pagination
-            query = query.Skip(dto.Skip).Take(dto.Take);
-            
-            //return som POCO
-            var list = await query.ToListAsync();
 
-            return list;
+        //Filtering - using generic filter system
+        query = query.ApplyFilters(dto.Filters);
+
+        //Ordering / sorting - support both old and new system
+        if (dto.Ordering.HasValue)
+        {
+            // Backward compatibility with enum-based ordering
+            query = dto.Ordering.Value switch
+            {
+                AuthorOrderingOptions.Name => query.OrderBy(a => a.Name),
+                AuthorOrderingOptions.NameDescending => query.OrderByDescending(a => a.Name),
+                AuthorOrderingOptions.NumberOfBooksPublished => query
+                    .OrderByDescending(a => a.Books.Count)
+                    .ThenBy(a => a.Name),
+                _ => query.OrderBy(a => a.Id)
+            };
+        }
+        else
+        {
+            // New generic sorting system
+            query = query.ApplySorting(dto.SortBy ?? "Id", dto.SortAscending);
+        }
+
+        //Chunking / pagination
+        query = query.Skip(dto.Skip).Take(dto.Take);
+
+        //return some POCO
+        var list = await query.ToListAsync();
+
+        return list;
     }
 
     public Task<List<BookDto>> GetBooks()
@@ -167,19 +183,38 @@ public class LibraryService(MyDbContext ctx) : ILibraryService
             .Select(a => new AuthorDto(a))
             .ToListAsync();
     }
-}
 
-public record GetAuthorsRequestDto
-{
-    [Range(0, Int32.MaxValue)]
-    public int Skip { get; set; }
-    [Range(1, 100)]
-    public int Take { get; set; }
-    public AuthorOrderingOptions Ordering { get; set; }
-}
+    public async Task<List<Author>> GetAuthorsSieveBasic(SieveModel sieveModel)
+    {
+        IQueryable<Author> authors = ctx.Authors;
+        sieveProcessor.Apply(sieveModel, authors);
+        return authors.ToList();
+    }
 
-public enum AuthorOrderingOptions
-{
-    Name,
-    NumberOfBooksPublished,
+    public async Task<List<Author>> GetAuthorsSieve(GetAuthorsSieveRequestDto dto)
+    {
+        Validator.ValidateObject(dto, new ValidationContext(dto), true);
+
+        // Start with base query WITHOUT includes (to allow Books.Count filtering/sorting)
+        IQueryable<Author> query = ctx.Authors;
+
+        // Convert our DTO to Sieve's SieveModel
+        var sieveModel = new SieveModel
+        {
+            Filters = dto.Filters,
+            Sorts = dto.Sorts,
+            Page = dto.Page,
+            PageSize = dto.PageSize
+        };
+
+        // Apply Sieve filtering, sorting, and pagination BEFORE includes
+        query = sieveProcessor.Apply(sieveModel, query);
+
+        // NOW include related data after filtering/sorting/pagination
+        query = query
+            .Include(a => a.Books)
+            .ThenInclude(b => b.Genre);
+
+        return await query.ToListAsync();
+    }
 }

@@ -54,6 +54,84 @@ export class LibraryClient {
         return Promise.resolve<Author[]>(null as any);
     }
 
+    getAuthorsSieve(dto: GetAuthorsSieveRequestDto): Promise<Author[]> {
+        let url_ = this.baseUrl + "/GetAuthorsSieve";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(dto);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAuthorsSieve(_response);
+        });
+    }
+
+    protected processGetAuthorsSieve(response: Response): Promise<Author[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Author[];
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Author[]>(null as any);
+    }
+
+    getAuthorsSieveBasic(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Author[]> {
+        let url_ = this.baseUrl + "/GetAuthorsSieveBasic?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAuthorsSieveBasic(_response);
+        });
+    }
+
+    protected processGetAuthorsSieveBasic(response: Response): Promise<Author[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Author[];
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Author[]>(null as any);
+    }
+
     getAuthorDtos(): Promise<AuthorDto[]> {
         let url_ = this.baseUrl + "/GetAuthorDtos";
         url_ = url_.replace(/[?&]$/, "");
@@ -511,13 +589,48 @@ export interface Genre {
     books: Book[];
 }
 
-export interface GetAuthorsRequestDto {
+export interface PaginatedRequestDto {
     skip: number;
     take: number;
-    ordering: AuthorOrderingOptions;
+    sortBy: string | undefined;
+    sortAscending: boolean;
+    filters: FilterDto[] | undefined;
 }
 
-export type AuthorOrderingOptions = 0 | 1;
+export interface GetAuthorsRequestDto extends PaginatedRequestDto {
+    ordering: AuthorOrderingOptions | undefined;
+}
+
+export enum AuthorOrderingOptions {
+    Name = 0,
+    NameDescending = 1,
+    NumberOfBooksPublished = 2,
+}
+
+export interface FilterDto {
+    propertyName: string;
+    operator: FilterOperator;
+    value: string | undefined;
+}
+
+export enum FilterOperator {
+    Equals = 0,
+    NotEquals = 1,
+    Contains = 2,
+    StartsWith = 3,
+    EndsWith = 4,
+    GreaterThan = 5,
+    LessThan = 6,
+    GreaterThanOrEqual = 7,
+    LessThanOrEqual = 8,
+}
+
+export interface GetAuthorsSieveRequestDto {
+    filters: string | undefined;
+    sorts: string | undefined;
+    page: number | undefined;
+    pageSize: number | undefined;
+}
 
 export interface AuthorDto {
     id: string;

@@ -3,6 +3,7 @@ using api.DTOs.Requests;
 using api.Services;
 using dataccess;
 using Microsoft.AspNetCore.Mvc;
+using Sieve.Models;
 
 namespace api;
 
@@ -13,6 +14,18 @@ public class LibraryController(ILibraryService libraryService) : ControllerBase
     {
         return await libraryService.GetAuthors(dto);
     }
+
+    [HttpPost(nameof(GetAuthorsSieve))]
+    public async Task<List<Author>> GetAuthorsSieve([FromBody]GetAuthorsSieveRequestDto dto)
+    {
+        return await libraryService.GetAuthorsSieve(dto);
+    }
+    [HttpPost(nameof(GetAuthorsSieveBasic))]
+    public async Task<List<Author>> GetAuthorsSieveBasic([FromQuery]SieveModel sieveModel)
+    {
+        return await libraryService.GetAuthorsSieveBasic(sieveModel);
+    }
+
     [HttpGet(nameof(GetAuthorDtos))]
     public async Task<List<AuthorDto>> GetAuthorDtos()
     {

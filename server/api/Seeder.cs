@@ -38,8 +38,3 @@ public class Seeder(MyDbContext ctx) : ISeeder
         ctx.SaveChanges();
     }
 }
-
-public interface ISeeder
-{
-    public Task Seed();
-}

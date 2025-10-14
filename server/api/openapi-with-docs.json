@@ -41,6 +41,108 @@
         }
       }
     },
+    "/GetAuthorsSieve": {
+      "post": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_GetAuthorsSieve",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAuthorsSieveRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Author"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetAuthorsSieveBasic": {
+      "post": {
+        "tags": [
+          "Library"
+        ],
+        "operationId": "Library_GetAuthorsSieveBasic",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Author"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/GetAuthorDtos": {
       "get": {
         "tags": [
@@ -478,33 +580,141 @@
         }
       },
       "GetAuthorsRequestDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "skip": {
-            "type": "integer",
-            "format": "int32"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginatedRequestDto"
           },
-          "take": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "ordering": {
-            "$ref": "#/components/schemas/AuthorOrderingOptions"
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ordering": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/AuthorOrderingOptions"
+                  }
+                ]
+              }
+            }
           }
-        }
+        ]
       },
       "AuthorOrderingOptions": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
           "Name",
+          "NameDescending",
           "NumberOfBooksPublished"
         ],
         "enum": [
           0,
-          1
+          1,
+          2
         ]
+      },
+      "PaginatedRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647.0,
+            "minimum": 0.0
+          },
+          "take": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100.0,
+            "minimum": 1.0
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortAscending": {
+            "type": "boolean"
+          },
+          "filters": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterDto"
+            }
+          }
+        }
+      },
+      "FilterDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyName": {
+            "type": "string"
+          },
+          "operator": {
+            "$ref": "#/components/schemas/FilterOperator"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "FilterOperator": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Equals",
+          "NotEquals",
+          "Contains",
+          "StartsWith",
+          "EndsWith",
+          "GreaterThan",
+          "LessThan",
+          "GreaterThanOrEqual",
+          "LessThanOrEqual"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "GetAuthorsSieveRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "filters": {
+            "type": "string",
+            "nullable": true
+          },
+          "sorts": {
+            "type": "string",
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647.0,
+            "minimum": 1.0,
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "nullable": true
+          }
+        }
       },
       "AuthorDto": {
         "type": "object",

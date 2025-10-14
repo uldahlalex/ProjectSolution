@@ -31,6 +31,15 @@ public class Program
         services.AddScoped<ILibraryService, LibraryService>();
         services.AddScoped<ISeeder, SeederWithRelations>();
         services.AddExceptionHandler<MyGlobalExceptionHandler>();
+
+        // Configure Sieve
+        services.Configure<Sieve.Models.SieveOptions>(options =>
+        {
+            options.CaseSensitive = false;
+            options.DefaultPageSize = 10;
+            options.MaxPageSize = 100;
+        });
+        services.AddScoped<Sieve.Services.ISieveProcessor, ApplicationSieveProcessor>();
     }
 
     public static void Main()
