@@ -27,6 +27,6 @@ public class Startup
             return ctx;
         });
         services.RemoveAll(typeof(ISeeder));
-        services.AddScoped<ISeeder, Seeder>();
+        services.AddScoped<ISeeder, SeederWithRelations>();
     }
 }

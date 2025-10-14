@@ -58,13 +58,13 @@ public class Program
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
         app.GenerateApiClientsFromOpenApi("/../../pagination/src/generated-client.ts").GetAwaiter().GetResult();
-       // if (app.Environment.IsDevelopment())
+        // if (app.Environment.IsDevelopment())
             using (var scope = app.Services.CreateScope())
             {
                 var seeder = scope.ServiceProvider.GetService<ISeeder>();
                 if (seeder != null) seeder.Seed().GetAwaiter().GetResult();
             }
 
-        app.Run();
+    app.Run();
     }
 }

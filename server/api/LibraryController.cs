@@ -1,4 +1,3 @@
-using api.DTOs;
 using api.DTOs.Requests;
 using api.Services;
 using dataccess;
@@ -9,92 +8,78 @@ namespace api;
 
 public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
-    [HttpPost(nameof(GetAuthors))]
-    public async Task<List<Author>> GetAuthors([FromBody]GetAuthorsRequestDto dto)
+ 
+    [HttpGet(nameof(GetAuthors))]
+    public async Task<List<Author>> GetAuthors([FromQuery]SieveModel sieveModel)
     {
-        return await libraryService.GetAuthors(dto);
+        return await libraryService.GetAuthors(sieveModel);
     }
 
-    [HttpPost(nameof(GetAuthorsSieve))]
-    public async Task<List<Author>> GetAuthorsSieve([FromBody]GetAuthorsSieveRequestDto dto)
-    {
-        return await libraryService.GetAuthorsSieve(dto);
-    }
-    [HttpPost(nameof(GetAuthorsSieveBasic))]
-    public async Task<List<Author>> GetAuthorsSieveBasic([FromQuery]SieveModel sieveModel)
-    {
-        return await libraryService.GetAuthorsSieveBasic(sieveModel);
-    }
 
-    [HttpGet(nameof(GetAuthorDtos))]
-    public async Task<List<AuthorDto>> GetAuthorDtos()
-    {
-        return await libraryService.GetAuthorDtos();
-    }
 
 
     [HttpGet(nameof(GetBooks))]
-    public async Task<List<BookDto>> GetBooks()
+    public async Task<List<Book>> GetBooks([FromQuery]SieveModel sieveModel)
     {
-        return await libraryService.GetBooks();
+        return await libraryService.GetBooks(sieveModel);
     }
 
     [HttpGet(nameof(GetGenres))]
-    public async Task<List<GenreDto>> GetGenres()
+    public async Task<List<Genre>> GetGenres([FromQuery] SieveModel sieveModel)
     {
-        return await libraryService.GetGenres();
+        return await libraryService.GetGenres(sieveModel);
     }
 
     [HttpPost(nameof(CreateBook))]
-    public async Task<BookDto> CreateBook([FromBody] CreateBookRequestDto dto)
+    public async Task<Book> CreateBook([FromBody] CreateBookRequestDto dto)
     {
         return await libraryService.CreateBook(dto);
     }
 
     [HttpPut(nameof(UpdateBook))]
-    public async Task<BookDto> UpdateBook([FromBody] UpdateBookRequestDto dto)
+    public async Task<Book> UpdateBook([FromBody] UpdateBookRequestDto dto)
     {
         return await libraryService.UpdateBook(dto);
     }
 
     [HttpDelete(nameof(DeleteBook))]
-    public async Task<BookDto> DeleteBook([FromQuery] string bookId)
+    public async Task<Book> DeleteBook([FromQuery] string bookId)
     {
         return await libraryService.DeleteBook(bookId);
     }
 
     [HttpPost(nameof(CreateAuthor))]
-    public async Task<AuthorDto> CreateAuthor([FromBody] CreateAuthorRequestDto dto)
+    public async Task<Author> CreateAuthor([FromBody] CreateAuthorRequestDto dto)
     {
         return await libraryService.CreateAuthor(dto);
     }
 
     [HttpPut(nameof(UpdateAuthor))]
-    public async Task<AuthorDto> UpdateAuthor([FromBody] UpdateAuthorRequestDto dto)
+    public async Task<Author> UpdateAuthor([FromBody] UpdateAuthorRequestDto dto)
     {
         return await libraryService.UpdateAuthor(dto);
     }
 
     [HttpDelete(nameof(DeleteAuthor))]
-    public async Task<AuthorDto> DeleteAuthor([FromQuery] string authorId)
+    public async Task<Author> DeleteAuthor([FromQuery] string authorId)
     {
         return await libraryService.DeleteAuthor(authorId);
     }
 
     [HttpPost(nameof(CreateGenre))]
-    public async Task<GenreDto> CreateGenre([FromBody] CreateGenreDto dto)
+    public async Task<Genre> CreateGenre([FromBody] CreateGenreDto dto)
     {
         return await libraryService.CreateGenre(dto);
     }
 
     [HttpDelete(nameof(DeleteGenre))]
-    public async Task<GenreDto> DeleteGenre([FromQuery] string genreId)
+    public async Task<Genre> DeleteGenre([FromQuery] string genreId)
     {
         return await libraryService.DeleteGenre(genreId);
     }
 
     [HttpPut(nameof(UpdateGenre))]
-    public async Task<GenreDto> UpdateGenre([FromBody] UpdateGenreRequestDto dto)
+    public async Task<Genre> UpdateGenre([FromBody] UpdateGenreRequestDto dto)
     {
         return await libraryService.UpdateGenre(dto);
     }

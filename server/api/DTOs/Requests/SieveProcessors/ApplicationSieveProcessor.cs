@@ -29,13 +29,11 @@ public class ApplicationSieveProcessor : SieveProcessor
             .CanFilter()
             .CanSort();
 
-        // Nested property - Books count
         mapper.Property<Author>(a => a.Books.Count)
             .CanFilter()
             .CanSort()
-            .HasName("BooksCount"); // Alias for easier usage
+            .HasName("BooksCount"); 
 
-        // Configure Book entity
         mapper.Property<Book>(b => b.Id)
             .CanFilter()
             .CanSort();
@@ -52,7 +50,6 @@ public class ApplicationSieveProcessor : SieveProcessor
             .CanFilter()
             .CanSort();
 
-        // Configure Genre entity
         mapper.Property<Genre>(g => g.Id)
             .CanFilter()
             .CanSort();

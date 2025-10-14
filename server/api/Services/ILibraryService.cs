@@ -7,19 +7,18 @@ namespace api.Services;
 
 public interface ILibraryService
 {
-    Task<List<Author>> GetAuthors(GetAuthorsRequestDto dto);
-    Task<List<Author>> GetAuthorsSieve(GetAuthorsSieveRequestDto dto);
-    Task<List<BookDto>> GetBooks();
-    Task<List<GenreDto>> GetGenres();
-    Task<BookDto> CreateBook(CreateBookRequestDto dto);
-    Task<BookDto> UpdateBook(UpdateBookRequestDto dto);
-    Task<BookDto> DeleteBook(string id);
-    Task<AuthorDto> CreateAuthor(CreateAuthorRequestDto dto);
-    Task<AuthorDto> UpdateAuthor(UpdateAuthorRequestDto dto);
-    Task<AuthorDto> DeleteAuthor(string authorId);
-    Task<GenreDto> CreateGenre(CreateGenreDto dto);
-    Task<GenreDto> DeleteGenre(string genreId);
-    Task<GenreDto> UpdateGenre(UpdateGenreRequestDto dto);
-    Task<List<AuthorDto>> GetAuthorDtos();
-    Task<List<Author>> GetAuthorsSieveBasic(SieveModel sieveModel);
+    
+    Task<Book> CreateBook(CreateBookRequestDto dto);
+    Task<Book> UpdateBook(UpdateBookRequestDto dto);
+    Task<Book> DeleteBook(string id);
+    Task<Author> CreateAuthor(CreateAuthorRequestDto dto);
+    Task<Author> UpdateAuthor(UpdateAuthorRequestDto dto);
+    Task<Author> DeleteAuthor(string authorId);
+    Task<Genre> CreateGenre(CreateGenreDto dto);
+    Task<Genre> DeleteGenre(string genreId);
+    Task<Genre> UpdateGenre(UpdateGenreRequestDto dto);
+
+    Task<List<Author>> GetAuthors(SieveModel sieveModel);
+    Task<List<Book>> GetBooks(SieveModel sieveModel);
+    Task<List<Genre>> GetGenres(SieveModel sieveModel);
 }
