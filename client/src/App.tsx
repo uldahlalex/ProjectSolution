@@ -1,24 +1,14 @@
 import {createBrowserRouter, RouterProvider} from "react-router";
 import Home from "./Components/Home.tsx";
 import {DevTools} from "jotai-devtools";
-import {useEffect} from "react";
 import 'jotai-devtools/styles.css'
 import Books from "./Components/Books.tsx";
 import Authors from "./Components/Authors.tsx";
 import Genres from "./Components/Genres.tsx";
 import {Toaster} from "react-hot-toast";
-import useLibraryCrud from "./useLibraryCrud.ts";
 
 
 function App() {
-
-    const libraryCrud = useLibraryCrud();
-
-    useEffect(() => {
-       libraryCrud.getAuthors();
-       libraryCrud.getBooks();
-        libraryCrud.getGenres();
-    }, [])
     
 
 return (

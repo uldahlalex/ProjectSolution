@@ -17,16 +17,16 @@ export class LibraryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAuthors(skip: number | undefined, take: number | undefined): Promise<Author[]> {
+    getAuthors(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Author[]> {
         let url_ = this.baseUrl + "/GetAuthors?";
-        if (skip === null)
-            throw new globalThis.Error("The parameter 'skip' cannot be null.");
-        else if (skip !== undefined)
-            url_ += "skip=" + encodeURIComponent("" + skip) + "&";
-        if (take === null)
-            throw new globalThis.Error("The parameter 'take' cannot be null.");
-        else if (take !== undefined)
-            url_ += "take=" + encodeURIComponent("" + take) + "&";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -58,41 +58,16 @@ export class LibraryClient {
         return Promise.resolve<Author[]>(null as any);
     }
 
-    getAuthorDtos(): Promise<AuthorDto[]> {
-        let url_ = this.baseUrl + "/GetAuthorDtos";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAuthorDtos(_response);
-        });
-    }
-
-    protected processGetAuthorDtos(response: Response): Promise<AuthorDto[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthorDto[];
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<AuthorDto[]>(null as any);
-    }
-
-    getBooks(): Promise<BookDto[]> {
-        let url_ = this.baseUrl + "/GetBooks";
+    getBooks(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Book[]> {
+        let url_ = this.baseUrl + "/GetBooks?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -107,13 +82,13 @@ export class LibraryClient {
         });
     }
 
-    protected processGetBooks(response: Response): Promise<BookDto[]> {
+    protected processGetBooks(response: Response): Promise<Book[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as BookDto[];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Book[];
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -121,11 +96,19 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<BookDto[]>(null as any);
+        return Promise.resolve<Book[]>(null as any);
     }
 
-    getGenres(): Promise<GenreDto[]> {
-        let url_ = this.baseUrl + "/GetGenres";
+    getGenres(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Genre[]> {
+        let url_ = this.baseUrl + "/GetGenres?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -140,13 +123,13 @@ export class LibraryClient {
         });
     }
 
-    protected processGetGenres(response: Response): Promise<GenreDto[]> {
+    protected processGetGenres(response: Response): Promise<Genre[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as GenreDto[];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Genre[];
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -154,10 +137,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GenreDto[]>(null as any);
+        return Promise.resolve<Genre[]>(null as any);
     }
 
-    createBook(dto: CreateBookRequestDto): Promise<BookDto> {
+    createBook(dto: CreateBookRequestDto): Promise<Book> {
         let url_ = this.baseUrl + "/CreateBook";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -177,13 +160,13 @@ export class LibraryClient {
         });
     }
 
-    protected processCreateBook(response: Response): Promise<BookDto> {
+    protected processCreateBook(response: Response): Promise<Book> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as BookDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Book;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -191,10 +174,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<BookDto>(null as any);
+        return Promise.resolve<Book>(null as any);
     }
 
-    updateBook(dto: UpdateBookRequestDto): Promise<BookDto> {
+    updateBook(dto: UpdateBookRequestDto): Promise<Book> {
         let url_ = this.baseUrl + "/UpdateBook";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -214,13 +197,13 @@ export class LibraryClient {
         });
     }
 
-    protected processUpdateBook(response: Response): Promise<BookDto> {
+    protected processUpdateBook(response: Response): Promise<Book> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as BookDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Book;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -228,10 +211,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<BookDto>(null as any);
+        return Promise.resolve<Book>(null as any);
     }
 
-    deleteBook(bookId: string | undefined): Promise<BookDto> {
+    deleteBook(bookId: string | undefined): Promise<Book> {
         let url_ = this.baseUrl + "/DeleteBook?";
         if (bookId === null)
             throw new globalThis.Error("The parameter 'bookId' cannot be null.");
@@ -251,13 +234,13 @@ export class LibraryClient {
         });
     }
 
-    protected processDeleteBook(response: Response): Promise<BookDto> {
+    protected processDeleteBook(response: Response): Promise<Book> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as BookDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Book;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -265,10 +248,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<BookDto>(null as any);
+        return Promise.resolve<Book>(null as any);
     }
 
-    createAuthor(dto: CreateAuthorRequestDto): Promise<AuthorDto> {
+    createAuthor(dto: CreateAuthorRequestDto): Promise<Author> {
         let url_ = this.baseUrl + "/CreateAuthor";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -288,13 +271,13 @@ export class LibraryClient {
         });
     }
 
-    protected processCreateAuthor(response: Response): Promise<AuthorDto> {
+    protected processCreateAuthor(response: Response): Promise<Author> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthorDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Author;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -302,10 +285,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<AuthorDto>(null as any);
+        return Promise.resolve<Author>(null as any);
     }
 
-    updateAuthor(dto: UpdateAuthorRequestDto): Promise<AuthorDto> {
+    updateAuthor(dto: UpdateAuthorRequestDto): Promise<Author> {
         let url_ = this.baseUrl + "/UpdateAuthor";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -325,13 +308,13 @@ export class LibraryClient {
         });
     }
 
-    protected processUpdateAuthor(response: Response): Promise<AuthorDto> {
+    protected processUpdateAuthor(response: Response): Promise<Author> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthorDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Author;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -339,10 +322,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<AuthorDto>(null as any);
+        return Promise.resolve<Author>(null as any);
     }
 
-    deleteAuthor(authorId: string | undefined): Promise<AuthorDto> {
+    deleteAuthor(authorId: string | undefined): Promise<Author> {
         let url_ = this.baseUrl + "/DeleteAuthor?";
         if (authorId === null)
             throw new globalThis.Error("The parameter 'authorId' cannot be null.");
@@ -362,13 +345,13 @@ export class LibraryClient {
         });
     }
 
-    protected processDeleteAuthor(response: Response): Promise<AuthorDto> {
+    protected processDeleteAuthor(response: Response): Promise<Author> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AuthorDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Author;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -376,10 +359,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<AuthorDto>(null as any);
+        return Promise.resolve<Author>(null as any);
     }
 
-    createGenre(dto: CreateGenreDto): Promise<GenreDto> {
+    createGenre(dto: CreateGenreDto): Promise<Genre> {
         let url_ = this.baseUrl + "/CreateGenre";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -399,13 +382,13 @@ export class LibraryClient {
         });
     }
 
-    protected processCreateGenre(response: Response): Promise<GenreDto> {
+    protected processCreateGenre(response: Response): Promise<Genre> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as GenreDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Genre;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -413,10 +396,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GenreDto>(null as any);
+        return Promise.resolve<Genre>(null as any);
     }
 
-    deleteGenre(genreId: string | undefined): Promise<GenreDto> {
+    deleteGenre(genreId: string | undefined): Promise<Genre> {
         let url_ = this.baseUrl + "/DeleteGenre?";
         if (genreId === null)
             throw new globalThis.Error("The parameter 'genreId' cannot be null.");
@@ -436,13 +419,13 @@ export class LibraryClient {
         });
     }
 
-    protected processDeleteGenre(response: Response): Promise<GenreDto> {
+    protected processDeleteGenre(response: Response): Promise<Genre> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as GenreDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Genre;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -450,10 +433,10 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GenreDto>(null as any);
+        return Promise.resolve<Genre>(null as any);
     }
 
-    updateGenre(dto: UpdateGenreRequestDto): Promise<GenreDto> {
+    updateGenre(dto: UpdateGenreRequestDto): Promise<Genre> {
         let url_ = this.baseUrl + "/UpdateGenre";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -473,13 +456,13 @@ export class LibraryClient {
         });
     }
 
-    protected processUpdateGenre(response: Response): Promise<GenreDto> {
+    protected processUpdateGenre(response: Response): Promise<Genre> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as GenreDto;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as Genre;
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -487,7 +470,7 @@ export class LibraryClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GenreDto>(null as any);
+        return Promise.resolve<Genre>(null as any);
     }
 }
 
@@ -513,29 +496,6 @@ export interface Genre {
     name: string;
     createdat: string;
     books: Book[];
-}
-
-export interface AuthorDto {
-    id: string;
-    name: string;
-    createdat: string;
-    bookIds: string[];
-}
-
-export interface BookDto {
-    id: string;
-    title: string;
-    pages: number;
-    createdat: string;
-    genreId: string | undefined;
-    authorsIds: string[];
-}
-
-export interface GenreDto {
-    id: string;
-    name: string;
-    createdat: string;
-    books: string[];
 }
 
 export interface CreateBookRequestDto {

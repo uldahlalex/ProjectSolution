@@ -10,7 +10,7 @@
     <ItemGroup>
     
         <PackageReference Include="NSwag.AspNetCore" Version="*" />
-        <PackageReference Include="Sieve.Query.Builder" Version="*" />
+        <PackageReference Include="Sieve.Query.Builder" Version="1.1.0" />
         <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="*" />
         <PackageReference Include="Sieve" Version="2.5.5" />
         <ProjectReference Include="..\dataccess\dataccess.csproj" />

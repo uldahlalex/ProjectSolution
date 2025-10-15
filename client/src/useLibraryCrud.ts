@@ -1,10 +1,9 @@
-import {AllAuthorsAtom, AllBooksAtom, AllGenresAtom} from "./atoms/atoms.ts";
-import {useAtom} from "jotai";
 import type {
-    BookDto,
+    Author,
+    Book,
     CreateAuthorRequestDto,
     CreateBookRequestDto,
-    CreateGenreDto,
+    CreateGenreDto, Genre,
     UpdateAuthorRequestDto,
     UpdateBookRequestDto,
     UpdateGenreRequestDto
@@ -12,6 +11,10 @@ import type {
 import {LibraryClient} from "./generated-client.ts";
 import customCatch from "./customCatch.ts";
 import toast from "react-hot-toast";
+import type {Dispatch, SetStateAction} from "react";
+import {resolveRefs} from "dotnet-json-refs";
+import type {SieveModel} from "ts-sieve-query-builder";
+import parameterizeSieveModel from "./parameterizeSieveModel.ts";
 
 const isProduction = import.meta.env.PROD;
 
@@ -25,29 +28,22 @@ export const libraryApi = new LibraryClient(finalUrl)
 
 export default function useLibraryCrud() {
 
-    const [authors, setAuthors] = useAtom(AllAuthorsAtom)
-    const [books, setBooks] = useAtom(AllBooksAtom)
-    const [genres, setGenres] = useAtom(AllGenresAtom)
-
-    async function updateAuthors(dto: UpdateAuthorRequestDto) {
+    async function updateAuthors(
+        dto: UpdateAuthorRequestDto,
+        setAuthors: Dispatch<SetStateAction<Author[]>>,
+    ) {
         try {
             const result = await libraryApi.updateAuthor(dto);
-            const index = authors.findIndex(a => a.id === result.id);
-            if (index > -1) {
-                const duplicate = [...authors];
-                duplicate[index] = result;
-                setAuthors(duplicate);
-            }
-            result.bookIds.forEach(bookId => {
-                const bookIndex = books.findIndex(b => b.id === bookId);
-                if (bookIndex > -1) {
-                    const bookDuplicate = [...books];
-                    if (!bookDuplicate[bookIndex].authorsIds.includes(result.id!)) {
-                        bookDuplicate[bookIndex].authorsIds.push(result.id!);
-                        setBooks(bookDuplicate);
-                    }
+            setAuthors(prevAuthors => {
+                const index = prevAuthors.findIndex(a => a.id === result.id);
+                if (index > -1) {
+                    const duplicate = [...prevAuthors];
+                    duplicate[index] = result;
+                    return duplicate;
                 }
-            })
+                return prevAuthors;
+            });
+          
             toast.success("Author updated successfully");
             return result;
         } catch (e: any) {
@@ -55,52 +51,45 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function updateBooks(dto: UpdateBookRequestDto) {
+    async function updateBooks(
+        dto: UpdateBookRequestDto,
+        setBooks: Dispatch<SetStateAction<Book[]>>,
+    ) {
         try {
-            const result = await libraryApi.updateBook(dto)
-            const index = books.findIndex(b => b.id === result.id);
-            if (index > -1) {
-                const duplicate = [...books];
-                duplicate[index] = result;
-                setBooks(duplicate);
-            }
-            result.authorsIds.forEach(authorId => {
-                const authorIndex = authors.findIndex(a => a.id === authorId);
-                if (authorIndex > -1) {
-                    const authorDuplicate = [...authors];
-                    if (!authorDuplicate[authorIndex].bookIds.includes(result.id!)) {
-                        authorDuplicate[authorIndex].bookIds.push(result.id!);
-                        setAuthors(authorDuplicate);
-                    }
+            const result = await libraryApi.updateBook(dto);
+            setBooks(prevBooks => {
+                const index = prevBooks.findIndex(b => b.id === result.id);
+                if (index > -1) {
+                    const duplicate = [...prevBooks];
+                    duplicate[index] = result;
+                    return duplicate;
                 }
-            })
-            const genre = genres.findIndex(g => g.id == result.genreId)
-            if (genre > -1) {
-                const genreDuplicate = [...genres];
-                if (!genreDuplicate[genre].books.includes(result.id!)) {
-                    genreDuplicate[genre].books.push(result.id!);
-                    setGenres(genreDuplicate);
-                }
-            }
+                return prevBooks;
+            });
+           
+            
             toast.success("Book updated successfully");
             return result;
         } catch (e: any) {
             customCatch(e);
-            
         }
-
     }
 
-    async function updateGenres(dto: UpdateGenreRequestDto) {
+    async function updateGenres(
+        dto: UpdateGenreRequestDto,
+        setGenres: Dispatch<SetStateAction<Genre[]>>
+    ) {
         try {
             const result = await libraryApi.updateGenre(dto);
-            const index = genres.findIndex(g => g.id === result.id);
-            if (index > -1) {
-                const duplicate = [...genres];
-                duplicate[index] = result;
-                setGenres(duplicate);
-            }
-            
+            setGenres(prevGenres => {
+                const index = prevGenres.findIndex(g => g.id === result.id);
+                if (index > -1) {
+                    const duplicate = [...prevGenres];
+                    duplicate[index] = result;
+                    return duplicate;
+                }
+                return prevGenres;
+            });
             toast.success("Genre updated successfully");
             return result;
         } catch (e: any) {
@@ -108,23 +97,27 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function deleteAuthor(id: string) {
+    async function deleteAuthor(
+        id: string,
+        setAuthors: Dispatch<SetStateAction<Author[]>>
+    ) {
         try {
             const result = await libraryApi.deleteAuthor(id);
-            const filtered = authors.filter(a => a.id !== id);
-            setAuthors(filtered);
-            toast.success("Author deleted succesfully successfully");
+            setAuthors(prevAuthors => prevAuthors.filter(a => a.id !== id));
+            toast.success("Author deleted successfully successfully");
             return result;
         } catch (e: any) {
             customCatch(e);
         }
     }
 
-    async function deleteBook(id: string) {
+    async function deleteBook(
+        id: string,
+        setBooks: Dispatch<SetStateAction<Book[]>>
+    ) {
         try {
             const result = await libraryApi.deleteBook(id);
-            const filtered = books.filter(b => b.id !== id);
-            setBooks(filtered);
+            setBooks(prevBooks => prevBooks.filter(b => b.id !== id));
             toast.success("Book deleted successfully");
             return result;
         } catch (e: any) {
@@ -132,12 +125,13 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function deleteGenre(id: string) {
+    async function deleteGenre(
+        id: string,
+        setGenres: Dispatch<SetStateAction<Genre[]>>
+    ) {
         try {
             const result = await libraryApi.deleteGenre(id);
-            const filtered = genres.filter(g => g.id !== id);
-            setGenres(filtered);
-            
+            setGenres(prevGenres => prevGenres.filter(g => g.id !== id));
             toast.success("Genre deleted successfully");
             return result;
         } catch (e: any) {
@@ -145,12 +139,13 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function createAuthor(dto: CreateAuthorRequestDto) {
+    async function createAuthor(
+        dto: CreateAuthorRequestDto,
+        setAuthors: Dispatch<SetStateAction<Author[]>>
+    ) {
         try {
             const result = await libraryApi.createAuthor(dto);
-            const duplicate = [...authors];
-            duplicate.push(result);
-            setAuthors(duplicate);
+            setAuthors(prevAuthors => [...prevAuthors, result]);
             toast.success("Author created successfully");
             return result;
         } catch (e: any) {
@@ -158,12 +153,13 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function createBook(dto: CreateBookRequestDto) {
+    async function createBook(
+        dto: CreateBookRequestDto,
+        setBooks: Dispatch<SetStateAction<Book[]>>
+    ) {
         try {
             const result = await libraryApi.createBook(dto);
-            const duplicate = [...books]
-            duplicate.push(result);
-            setBooks(duplicate);
+            setBooks(prevBooks => [...prevBooks, result]);
             toast.success("Book created successfully");
             return result;
         } catch (e: any) {
@@ -171,12 +167,13 @@ export default function useLibraryCrud() {
         }
     }
 
-    async function createGenre(dto: CreateGenreDto) {
+    async function createGenre(
+        dto: CreateGenreDto,
+        setGenres: Dispatch<SetStateAction<Genre[]>>
+    ) {
         try {
             const result = await libraryApi.createGenre(dto);
-            const duplicate = [...genres];
-            duplicate.push(result);
-            setGenres(duplicate);
+            setGenres(prevGenres => [...prevGenres, result]);
             toast.success("Genre created successfully");
             return result;
         } catch (e: any) {
@@ -184,29 +181,29 @@ export default function useLibraryCrud() {
         }
     }
     
-    async function getAuthors() {
+    async function getAuthors(setAuthors: Dispatch<SetStateAction<Author[]>>, sieveModel: SieveModel) {
         try {
-            const result = await libraryApi.getAuthorDtos();
-            setAuthors(result);
+            const result = await libraryApi.getAuthors(...parameterizeSieveModel(sieveModel));
+            setAuthors(resolveRefs(result));
         }
         catch (e: any) {
             customCatch(e);
         }
     }
-    
-    async function getBooks() {
+
+    async function getBooks(setBooks: Dispatch<SetStateAction<Book[]>>, sieveModel: SieveModel) {
         try {
-            const result = await libraryApi.getBooks();
+            const result = await libraryApi.getBooks(...parameterizeSieveModel(sieveModel));
             setBooks(result);
         }
         catch (e: any) {
             customCatch(e);
         }
     }
-    
-    async function getGenres() {
+
+    async function getGenres(setGenres: Dispatch<SetStateAction<Genre[]>>, sieveModel: SieveModel) {
         try {
-            const result = await libraryApi.getGenres();
+            const result = await libraryApi.getGenres(...parameterizeSieveModel(sieveModel));
             setGenres(result);
         }
         catch (e: any) {

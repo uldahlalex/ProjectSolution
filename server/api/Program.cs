@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using api.Services;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
+using SieveQueryBuilder;
 
 namespace api;
 
@@ -39,6 +40,7 @@ public class Program
             options.DefaultPageSize = 10;
             options.MaxPageSize = 100;
         });
+     
         services.AddScoped<Sieve.Services.ISieveProcessor, ApplicationSieveProcessor>();
     }
 
@@ -57,7 +59,7 @@ public class Program
         app.UseSwaggerUi();
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
-        app.GenerateApiClientsFromOpenApi("/../../pagination/src/generated-client.ts").GetAwaiter().GetResult();
+        app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
         // if (app.Environment.IsDevelopment())
             using (var scope = app.Services.CreateScope())
             {
@@ -65,6 +67,7 @@ public class Program
                 if (seeder != null) seeder.Seed().GetAwaiter().GetResult();
             }
 
+        
     app.Run();
     }
 }

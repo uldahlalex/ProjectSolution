@@ -1,24 +1,28 @@
 import {useAtom} from "jotai";
-import {AllAuthorsAtom, AllBooksAtom} from "../atoms/atoms.ts";
-import {useState} from "react";
-import {type BookDto, type CreateBookRequestDto} from "../generated-client.ts";
-import {Book} from "./Book.tsx";
+import {useEffect, useState} from "react";
+import {type Book, type CreateBookRequestDto} from "../generated-client.ts";
 import useLibraryCrud from "../useLibraryCrud.ts";
+import {BookDetails} from "./BookDetails.tsx";
 
 export interface BookProps {
-    book: BookDto
+    book: Book
 }
 
 export default function Books() {
 
-    const [books, setAllBooks] = useAtom(AllBooksAtom);
-    const [authors] = useAtom(AllAuthorsAtom);
+    const [books, setAllBooks] = useState<Book[]>([]);
     const [createBookForm, setCreateBookForm] = useState<CreateBookRequestDto>({
         pages: 1,
         title: "my amazing new book"
     });
     const libraryCrud = useLibraryCrud();
     
+    useEffect(() => {
+        libraryCrud.getBooks(setAllBooks,{pageSize: 5,
+        page: 1,
+        sorts: "",
+        filters: ""})
+    })
 
     return <>
         <div className="p-5">
@@ -56,7 +60,7 @@ export default function Books() {
                         <button
                             className="btn btn-primary gap-2"
                             onClick={() => {
-                                libraryCrud.createBook(createBookForm);
+                                libraryCrud.createBook(createBookForm, setAllBooks);
                                 setCreateBookForm({pages: 1, title: "My Amazing New Book"});
                             }}
                         >
@@ -72,7 +76,7 @@ export default function Books() {
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
-                books.map(b => <Book key={b.id} book={b} />)
+                books.map(b => <BookDetails key={b.id} book={b} />)
             }
         </ul>
     </>

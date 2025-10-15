@@ -1,26 +1,25 @@
 import {useAtom} from "jotai";
-import {AllAuthorsAtom, AllGenresAtom} from "../atoms/atoms.ts";
-import {type BookDto, type UpdateBookRequestDto} from "../generated-client.ts";
+import {type Author, type UpdateBookRequestDto} from "../generated-client.ts";
 import type {BookProps} from "./Books.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
 
-export function Book(props: BookProps) {
-    const [authors] = useAtom(AllAuthorsAtom);
-    const [genres] = useAtom(AllGenresAtom);
+export function BookDetails(props: BookProps) {
+    
     const libraryCrud = useLibraryCrud();
+    
     const [updateBookForm, setUpdateBookForm] = useState<UpdateBookRequestDto>({
-        authorsIds: authors.filter(a => props.book.authorsIds?.includes(a.id)).map(a => a.id!),
+        authorsIds: props.book.authors.map(a => a.id),
         bookIdForLookupReference: props.book.id!,
-        genreId: props.book.genreId,
+        genreId: props.book.genre?.id,
         newTitle: props.book.title!,
         newPageCount: props.book.pages!
     });
 
-    const getAuthorNamesForBook : string[] =
-        authors.filter(a => props.book.authorsIds.includes(a.id!) && a.bookIds.includes(props.book.id))
-            .map(a => a.name);
-
+    useEffect(() => {
+        
+    }, [])
+  
 
     return <li
         className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">

@@ -31,8 +31,7 @@ public class ApplicationSieveProcessor : SieveProcessor
 
         mapper.Property<Author>(a => a.Books.Count)
             .CanFilter()
-            .CanSort()
-            .HasName("BooksCount"); 
+            .CanSort(); 
 
         mapper.Property<Book>(b => b.Id)
             .CanFilter()
