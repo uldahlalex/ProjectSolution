@@ -1,8 +1,10 @@
 import {useAtom} from "jotai";
 import {useEffect, useState} from "react";
-import {type Book, type CreateBookRequestDto} from "../generated-client.ts";
+import {type Author, type Book, type CreateBookRequestDto} from "../generated-client.ts";
 import useLibraryCrud from "../useLibraryCrud.ts";
 import {BookDetails} from "./BookDetails.tsx";
+import {useNavigate, useSearchParams} from "react-router";
+import {SieveQueryBuilder} from "ts-sieve-query-builder";
 
 export interface BookProps {
     book: Book,
@@ -17,13 +19,31 @@ export default function Books() {
         title: "my amazing new book"
     });
     const libraryCrud = useLibraryCrud();
-    
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate();
+    const filters = searchParams.get('filters') ?? ""
+    const sorts = searchParams.get('sorts') ?? ""
+    const pageSize = Number.parseInt(searchParams.get('pageSize') ?? "3");
+    const page = Number.parseInt(searchParams.get('page') ?? "1")
+
+    const queryModel = SieveQueryBuilder.parseFromString<Author>(
+        {
+            pageSize: pageSize,
+            page: page,
+            filters: filters,
+            sorts: sorts
+        }
+    );
+
+
+
     useEffect(() => {
-        libraryCrud.getBooks(setAllBooks,{pageSize: 5,
-        page: 1,
-        sorts: "",
-        filters: ""})
-    }, [])
+        libraryCrud.getBooks(setAllBooks,
+            {pageSize: pageSize,
+        page: page,
+        sorts: sorts,
+        filters: filters})
+    }, [searchParams])
 
     return <>
         <div className="p-5">
@@ -74,6 +94,12 @@ export default function Books() {
                 </div>
             </div>
         </div>
+        
+        {/*Filter books*/}
+        <input placeholder="full text search books" onChange={e => {
+            //Change the search params which in return will reflect the new request sent the api
+            navigate()
+        }} />
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
