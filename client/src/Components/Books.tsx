@@ -3,6 +3,7 @@ import {type Book, type CreateBookRequestDto} from "../generated-client.ts";
 import useLibraryCrud from "../useLibraryCrud.ts";
 import {BookDetails} from "./BookDetails.tsx";
 import {useSearchParams} from "react-router";
+import {SieveQueryBuilder} from "ts-sieve-query-builder";
 
 export interface BookProps {
     book: Book,
@@ -18,19 +19,28 @@ export default function Books() {
     });
     const libraryCrud = useLibraryCrud();
     const [searchParams, setSearchParams] = useSearchParams();
-    const filters = searchParams.get('filters') ?? "";
-    const sorts = searchParams.get('sorts') ?? "";
-    const pageSize = Number.parseInt(searchParams.get('pageSize') ?? "2");
-    const page = Number.parseInt(searchParams.get('page') ?? "1");
 
+    // Helper to convert SieveModel to URLSearchParams
+    const sieveModelToParams = (model: ReturnType<typeof SieveQueryBuilder.prototype.buildSieveModel>, searchValue?: string) => {
+        const params = new URLSearchParams();
+        if (model.filters) params.set('filters', model.filters);
+        if (model.sorts) params.set('sorts', model.sorts);
+        if (model.page) params.set('page', model.page.toString());
+        if (model.pageSize) params.set('pageSize', model.pageSize.toString());
+        if (searchValue) params.set('search', searchValue);
+        return params;
+    };
 
+    // Parse current search params into a SieveQueryBuilder for type-safe querying
+    const queryBuilder = SieveQueryBuilder.parseFromString<Book>({
+        filters: searchParams.get('filters') ?? "",
+        sorts: searchParams.get('sorts') ?? "",
+        pageSize: Number.parseInt(searchParams.get('pageSize') ?? "2"),
+        page: Number.parseInt(searchParams.get('page') ?? "1")
+    });
 
     useEffect(() => {
-        libraryCrud.getBooks(setAllBooks,
-            {pageSize: pageSize,
-        page: page,
-        sorts: sorts,
-        filters: filters})
+        libraryCrud.getBooks(setAllBooks, queryBuilder.buildSieveModel());
     }, [searchParams])
 
     return <>
@@ -94,16 +104,16 @@ export default function Books() {
                     className="input input-bordered w-full"
                     value={searchParams.get('search') ?? ''}
                     onChange={e => {
-                        const newParams = new URLSearchParams(searchParams);
-                        if (e.target.value) {
-                            newParams.set('filters', `title@=*${e.target.value}`);
-                            newParams.set('search', e.target.value);
-                        } else {
-                            newParams.delete('filters');
-                            newParams.delete('search');
+                        const searchValue = e.target.value;
+                        const newQuery = SieveQueryBuilder.create<Book>()
+                            .pageSize(Number.parseInt(searchParams.get('pageSize') ?? "2"))
+                            .page(1); // Reset to first page on new search
+
+                        if (searchValue) {
+                            newQuery.filterContains('title', searchValue);
                         }
-                        newParams.set('page', '1'); // Reset to first page on new search
-                        setSearchParams(newParams);
+
+                        setSearchParams(sieveModelToParams(newQuery.buildSieveModel(), searchValue || undefined));
                     }}
                 />
             </div>
@@ -119,23 +129,27 @@ export default function Books() {
         <div className="flex justify-center gap-2 p-5">
             <button
                 className="btn btn-sm"
-                disabled={page <= 1}
+                disabled={queryBuilder.buildSieveModel().page! <= 1}
                 onClick={() => {
-                    const newParams = new URLSearchParams(searchParams);
-                    newParams.set('page', (page - 1).toString());
-                    setSearchParams(newParams);
+                    const currentModel = queryBuilder.buildSieveModel();
+                    const newQuery = SieveQueryBuilder.parseFromString<Book>(currentModel)
+                        .page(currentModel.page! - 1);
+
+                    setSearchParams(sieveModelToParams(newQuery.buildSieveModel(), searchParams.get('search') || undefined));
                 }}
             >
                 Previous
             </button>
-            <span className="flex items-center px-4">Page {page}</span>
+            <span className="flex items-center px-4">Page {queryBuilder.buildSieveModel().page}</span>
             <button
                 className="btn btn-sm"
-                disabled={allBooks.length < pageSize}
+                disabled={allBooks.length < queryBuilder.buildSieveModel().pageSize!}
                 onClick={() => {
-                    const newParams = new URLSearchParams(searchParams);
-                    newParams.set('page', (page + 1).toString());
-                    setSearchParams(newParams);
+                    const currentModel = queryBuilder.buildSieveModel();
+                    const newQuery = SieveQueryBuilder.parseFromString<Book>(currentModel)
+                        .page(currentModel.page! + 1);
+
+                    setSearchParams(sieveModelToParams(newQuery.buildSieveModel(), searchParams.get('search') || undefined));
                 }}
             >
                 Next
