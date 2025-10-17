@@ -1,10 +1,8 @@
-import {useAtom} from "jotai";
 import {useEffect, useState} from "react";
-import {type Author, type Book, type CreateBookRequestDto} from "../generated-client.ts";
+import {type Book, type CreateBookRequestDto} from "../generated-client.ts";
 import useLibraryCrud from "../useLibraryCrud.ts";
 import {BookDetails} from "./BookDetails.tsx";
-import {useNavigate, useSearchParams} from "react-router";
-import {SieveQueryBuilder} from "ts-sieve-query-builder";
+import {useSearchParams} from "react-router";
 
 export interface BookProps {
     book: Book,
@@ -19,21 +17,11 @@ export default function Books() {
         title: "my amazing new book"
     });
     const libraryCrud = useLibraryCrud();
-    const [searchParams] = useSearchParams()
-    const navigate = useNavigate();
-    const filters = searchParams.get('filters') ?? ""
-    const sorts = searchParams.get('sorts') ?? ""
-    const pageSize = Number.parseInt(searchParams.get('pageSize') ?? "3");
-    const page = Number.parseInt(searchParams.get('page') ?? "1")
-
-    const queryModel = SieveQueryBuilder.parseFromString<Author>(
-        {
-            pageSize: pageSize,
-            page: page,
-            filters: filters,
-            sorts: sorts
-        }
-    );
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filters = searchParams.get('filters') ?? "";
+    const sorts = searchParams.get('sorts') ?? "";
+    const pageSize = Number.parseInt(searchParams.get('pageSize') ?? "2");
+    const page = Number.parseInt(searchParams.get('page') ?? "1");
 
 
 
@@ -96,15 +84,62 @@ export default function Books() {
         </div>
         
         {/*Filter books*/}
-        <input placeholder="full text search books" onChange={e => {
-            //Change the search params which in return will reflect the new request sent the api
-            navigate()
-        }} />
+        <div className="p-5 pt-0">
+            <div className="form-control">
+                <label className="label">
+                    <span className="label-text font-medium">Search Books</span>
+                </label>
+                <input
+                    placeholder="Search by title..."
+                    className="input input-bordered w-full"
+                    value={searchParams.get('search') ?? ''}
+                    onChange={e => {
+                        const newParams = new URLSearchParams(searchParams);
+                        if (e.target.value) {
+                            newParams.set('filters', `title@=*${e.target.value}`);
+                            newParams.set('search', e.target.value);
+                        } else {
+                            newParams.delete('filters');
+                            newParams.delete('search');
+                        }
+                        newParams.set('page', '1'); // Reset to first page on new search
+                        setSearchParams(newParams);
+                    }}
+                />
+            </div>
+        </div>
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
                 allBooks && allBooks.length > 0 && allBooks.map(b => <BookDetails key={b.id} book={b} setAllBooks={setAllBooks} />)
             }
         </ul>
+
+        {/*Pagination*/}
+        <div className="flex justify-center gap-2 p-5">
+            <button
+                className="btn btn-sm"
+                disabled={page <= 1}
+                onClick={() => {
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.set('page', (page - 1).toString());
+                    setSearchParams(newParams);
+                }}
+            >
+                Previous
+            </button>
+            <span className="flex items-center px-4">Page {page}</span>
+            <button
+                className="btn btn-sm"
+                disabled={allBooks.length < pageSize}
+                onClick={() => {
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.set('page', (page + 1).toString());
+                    setSearchParams(newParams);
+                }}
+            >
+                Next
+            </button>
+        </div>
     </>
 }
