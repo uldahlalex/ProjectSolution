@@ -1,15 +1,17 @@
 import {useAtom} from "jotai";
-import {type Author, type UpdateBookRequestDto} from "../generated-client.ts";
+import {type Author, type Book, type Genre, type UpdateBookRequestDto} from "../generated-client.ts";
 import type {BookProps} from "./Books.tsx";
 import {useEffect, useState} from "react";
-import useLibraryCrud from "../useLibraryCrud.ts";
+import useLibraryCrud, {libraryApi} from "../useLibraryCrud.ts";
 
 export function BookDetails(props: BookProps) {
     
     const libraryCrud = useLibraryCrud();
+    const [allAuthors, setAllAuthors] = useState<Author[]>([]);
+    const [allGenres, setAllGenres] = useState<Genre[]>([]);
     
     const [updateBookForm, setUpdateBookForm] = useState<UpdateBookRequestDto>({
-        authorsIds: props.book.authors.map(a => a.id),
+        authorsIds: props.book.authors && props.book.authors.length > 0 ? props.book.authors.map(a => a.id) : [],
         bookIdForLookupReference: props.book.id!,
         genreId: props.book.genre?.id,
         newTitle: props.book.title!,
@@ -17,7 +19,8 @@ export function BookDetails(props: BookProps) {
     });
 
     useEffect(() => {
-        
+        libraryCrud.getAuthors(setAllAuthors, {filters: "", sorts: "", page: 1, pageSize:1000})
+        libraryCrud.getGenres(setAllGenres, {filters: "", sorts: "", page: 1, pageSize:1000})
     }, [])
   
 
@@ -32,9 +35,9 @@ export function BookDetails(props: BookProps) {
                             📖 {props.book.pages} pages
                         </div>
                         {
-                            getAuthorNamesForBook.length > 0 ? (
+                            props.book.authors && props.book.authors.length > 0 ? (
                                 <div className="text-sm text-base-content/70">
-                                    ✍️ By {getAuthorNamesForBook.join(', ')}
+                                    Written by: {props.book.authors?.map(a => a.name).join(', ')}  ✍
                                 </div>
                             ) :  <div className="text-sm text-base-content/70">
                                 No author has been selected yet
@@ -93,24 +96,24 @@ export function BookDetails(props: BookProps) {
                                     <span className="label-text font-medium">Authors</span>
                                 </label>
                                 <div className="space-y-2 max-h-32 overflow-y-auto">
-                                    {authors.map(a =>
+                                    {allAuthors && allAuthors.length > 0 && allAuthors.map(a =>
                                         <label key={a.id}
                                                className="flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 cursor-pointer">
                                             <input
                                                 className="checkbox checkbox-primary checkbox-sm"
                                                 type="checkbox"
-                                                defaultChecked={props.book.authorsIds.includes(a.id)}
+                                                defaultChecked={props.book.authors.map(a => a.id).includes(a.id)}
                                                 onChange={() => {
-                                                    const alreadyAssigned = props.book.authorsIds.includes(a.id!);
+                                                    const alreadyAssigned = props.book.authors.map(a => a.id).includes(a.id!);
                                                     if (alreadyAssigned) {
-                                                        const newAuthorIds = props.book.authorsIds.filter(id => id !== a.id);
+                                                        const newAuthorIds = props.book.authors.map(a => a.id).filter(id => id !== a.id);
                                                         setUpdateBookForm({
                                                             ...updateBookForm,
                                                             authorsIds: newAuthorIds
                                                         });
                                                         return;
                                                     }
-                                                    const newAuthorIds = [...(props.book.authorsIds ?? []), a.id!];
+                                                    const newAuthorIds = [...(props.book.authors.map(a => a.id) ?? []), a.id!];
                                                     setUpdateBookForm({...updateBookForm, authorsIds: newAuthorIds});
                                                 }}
                                             />
@@ -126,11 +129,11 @@ export function BookDetails(props: BookProps) {
                                 </label>
                                 <div className="space-y-2 max-h-32 overflow-y-auto">
                                     {
-                                        genres.map(g => {
+                                        allGenres && allGenres.length > 0 && allGenres.map(g => {
                                             return <div key={g.id}>{g.name}
                                                 <input type="radio" name="radio-1" className="radio" onChange={e => {
                                                     setUpdateBookForm({...updateBookForm, genreId: g.id!})
-                                                }} defaultChecked={props.book.genreId == g.id}/>
+                                                }} defaultChecked={props.book.genre?.id == g.id}/>
                                             </div>
                                         })
                                     }
@@ -142,14 +145,14 @@ export function BookDetails(props: BookProps) {
                             <div className="flex justify-evenly">
                                 <button
                                     className="btn btn-primary  gap-2"
-                                    onClick={() => libraryCrud.updateBooks(updateBookForm)}
+                                    onClick={() => libraryCrud.updateBooks(updateBookForm, props.setAllBooks)}
                                 >
 
                                     Update Book
                                 </button>
                                 <button
                                     className="btn btn-error  gap-2"
-                                    onClick={() => libraryCrud.deleteBook(props.book.id!)}
+                                    onClick={() => libraryCrud.deleteBook(props.book.id!, props.setAllBooks)}
                                 >
                                     Delete book
                                 </button>

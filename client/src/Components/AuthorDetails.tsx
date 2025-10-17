@@ -1,24 +1,17 @@
 import {useAtom} from "jotai";
-import {AllBooksAtom} from "../atoms/atoms.ts";
-import {type AuthorDto, type UpdateAuthorRequestDto} from "../generated-client.ts";
+import {type Book, type UpdateAuthorRequestDto} from "../generated-client.ts";
 import {useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
 import type {AuthorProps} from "./AuthorProps.tsx";
 
 export function AuthorDetails(props: AuthorProps) {
-    const [books] = useAtom(AllBooksAtom);
+    const [books, setAllBooks] = useState<Book[]>([]);
     const libraryCrud = useLibraryCrud();
     const [updateAuthorForm, setUpdateAuthorForm] = useState<UpdateAuthorRequestDto>({
         authorIdForLookup: props.author.id!,
         newName: props.author.name!,
-        booksIds: props.author.bookIds
+        booksIds: props.author.books.map(b => b.id)
     });
-
-    const getBookTitlesFromIds: string[] = (function(){
-        return books.filter(b => props.author.bookIds.includes(b.id!) && b.authorsIds.includes(props.author.id))
-            .map(b => b.title!)
-    })();
-
 
     return <li
         className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
@@ -29,9 +22,9 @@ export function AuthorDetails(props: AuthorProps) {
                     <div className="flex flex-col gap-1">
 
                         {
-                            getBookTitlesFromIds.length > 0 ? (
+                            props.author.books && props.author.books.length > 0 ? (
                                 <div className="text-sm text-base-content/70">
-                                    📖 Books: {getBookTitlesFromIds.join(', ')}
+                                    📖 Books: {props.author.books.map(b => b.title).join(', ')}
                                 </div>
                             ) : <div className="badge badge-outline badge-sm">
                                 Has not authored any books yet
@@ -107,13 +100,13 @@ export function AuthorDetails(props: AuthorProps) {
                             <div className="flex justify-evenly">
                                 <button
                                     className="btn btn-primary gap-2"
-                                    onClick={() => libraryCrud.updateAuthors(updateAuthorForm)}
+                                    onClick={() => libraryCrud.updateAuthors(updateAuthorForm, props.setAllAuthors)}
                                 >
                                     Update Author
                                 </button>
                                 <button
                                     className="btn btn-error gap-2"
-                                    onClick={() => libraryCrud.deleteAuthor(props.author.id!)}
+                                    onClick={() => libraryCrud.deleteAuthor(props.author.id!, props.setAllAuthors)}
                                 >
                                     Delete Author
                                 </button>

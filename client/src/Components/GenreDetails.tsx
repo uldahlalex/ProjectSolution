@@ -1,22 +1,21 @@
 import {useAtom} from "jotai";
-import {AllBooksAtom} from "../atoms/atoms.ts";
-import {type UpdateGenreRequestDto} from "../generated-client.ts";
+import {type Book, type UpdateGenreRequestDto} from "../generated-client.ts";
 import type {GenreProps} from "./Genres.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import useLibraryCrud from "../useLibraryCrud.ts";
 
-export function Genre(props: GenreProps) {
-    const [books] = useAtom(AllBooksAtom);
+export function GenreDetails(props: GenreProps) {
+    const [books, setBooks] = useState<Book[]>([]);
     const libraryCrud = useLibraryCrud();
     const [updateGenreForm, setUpdateGenreForm] = useState<UpdateGenreRequestDto>({
         idToLookupBy: props.genre.id!,
         newName: props.genre.name!
     });
 
-    const getBookTitlesFromIds=
-    books.filter(b => props.genre.books.includes(b.id!) && b.genreId == props.genre.id).map(b => b.title)
+    useEffect(() => {
+        libraryCrud.getBooks(setBooks, {filters: "", sorts: "",page: 1, pageSize: 1000})
+    }, [])
     
-
     return <li className="card bg-base-100 shadow-lg border border-base-300 mb-4 hover:shadow-xl transition-shadow duration-200">
         <div className="card-body p-6">
             <div className="flex justify-between items-start">
@@ -24,9 +23,9 @@ export function Genre(props: GenreProps) {
                     <h3 className="card-title text-lg font-bold text-primary mb-2">{props.genre.name}</h3>
                     <div className="flex flex-col gap-1">
                       
-                        {getBookTitlesFromIds.length > 0 ? (
+                        {props.genre.books && props.genre.books.length > 0 ? (
                             <div className="text-sm text-base-content/70">
-                                📖 Books: {getBookTitlesFromIds.join(', ')}
+                                📖 Books: {props.genre.books.map(b => b.title).join(', ')}
                             </div>
                         ) :   <div className="badge badge-outline badge-sm">
                             No book has this genre yet
@@ -66,10 +65,9 @@ export function Genre(props: GenreProps) {
                                 </label>
                                 <div className="space-y-2 max-h-32 overflow-y-auto">
                                     {props.genre.books && props.genre.books.length > 0 ? (
-                                        props.genre.books.map(bookId => {
-                                            const book = books.find(b => b.id === bookId);
+                                        props.genre.books.map(book => {
                                             return book ? (
-                                                <div key={bookId} className="flex items-center gap-3 p-2 rounded-lg bg-base-200">
+                                                <div key={book.id} className="flex items-center gap-3 p-2 rounded-lg bg-base-200">
                                                     <span className="text-sm">📖 {book.title}</span>
                                                 </div>
                                             ) : null;
@@ -85,13 +83,13 @@ export function Genre(props: GenreProps) {
                             <div className="flex justify-evenly">
                                 <button
                                     className="btn btn-primary gap-2"
-                                    onClick={() => libraryCrud.updateGenres(updateGenreForm)}
+                                    onClick={() => libraryCrud.updateGenres(updateGenreForm,props.setGenre )}
                                 >
                                     Update Genre
                                 </button>
                                 <button
                                     className="btn btn-error gap-2"
-                                    onClick={() => libraryCrud.deleteGenre(props.genre.id!)}
+                                    onClick={() => libraryCrud.deleteGenre(props.genre.id!, props.setGenre)}
                                 >
                                     Delete Genre
                                 </button>

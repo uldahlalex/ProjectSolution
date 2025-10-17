@@ -5,12 +5,13 @@ import useLibraryCrud from "../useLibraryCrud.ts";
 import {BookDetails} from "./BookDetails.tsx";
 
 export interface BookProps {
-    book: Book
+    book: Book,
+    setAllBooks: React.Dispatch<React.SetStateAction<Book[]>>
 }
 
 export default function Books() {
 
-    const [books, setAllBooks] = useState<Book[]>([]);
+    const [allBooks, setAllBooks] = useState<Book[]>([]);
     const [createBookForm, setCreateBookForm] = useState<CreateBookRequestDto>({
         pages: 1,
         title: "my amazing new book"
@@ -22,7 +23,7 @@ export default function Books() {
         page: 1,
         sorts: "",
         filters: ""})
-    })
+    }, [])
 
     return <>
         <div className="p-5">
@@ -76,7 +77,7 @@ export default function Books() {
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
-                books.map(b => <BookDetails key={b.id} book={b} />)
+                allBooks && allBooks.length > 0 && allBooks.map(b => <BookDetails key={b.id} book={b} setAllBooks={setAllBooks} />)
             }
         </ul>
     </>

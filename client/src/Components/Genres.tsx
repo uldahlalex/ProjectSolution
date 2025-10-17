@@ -1,22 +1,30 @@
 import {useAtom} from "jotai";
-import {AllGenresAtom} from "../atoms/atoms.ts";
-import {useState} from "react";
-import {type GenreDto, type CreateGenreDto} from "../generated-client.ts";
-import {Genre} from "./Genre.tsx";
+import {useEffect, useState} from "react";
+import {type CreateGenreDto, type Genre} from "../generated-client.ts";
+import {GenreDetails} from "./GenreDetails.tsx";
 import useLibraryCrud from "../useLibraryCrud.ts";
 
 export interface GenreProps {
-    genre: GenreDto
+    setGenre: React.Dispatch<React.SetStateAction<Genre[]>>;
+    genre: Genre
 }
 
 export default function Genres() {
 
-    const [genres, setAllGenres] = useAtom(AllGenresAtom);
+    const [genres, setAllGenres] = useState<Genre[]>([]);
     const [createGenreForm, setCreateGenreForm] = useState<CreateGenreDto>({
         name: "New Genre"
     });
     const libraryCrud = useLibraryCrud();
 
+    useEffect(() => {
+        libraryCrud.getGenres(setAllGenres, {
+            pageSize: 1000,
+            page: 1,
+            sorts: "",
+            filters: ""
+        })
+        }, [])
 
     return <>
         <div className="p-5">
@@ -42,7 +50,7 @@ export default function Genres() {
                         <button
                             className="btn btn-primary gap-2"
                             onClick={() => {
-                                libraryCrud.createGenre(createGenreForm);
+                                libraryCrud.createGenre(createGenreForm, setAllGenres);
                                 setCreateGenreForm({name: "New Genre"});
                             }}
                         >
@@ -58,7 +66,7 @@ export default function Genres() {
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
-                genres.map(g => <Genre key={g.id} genre={g} />)
+                genres.map(g => <GenreDetails key={g.id} genre={g} setGenre={setAllGenres} />)
             }
         </ul>
     </>

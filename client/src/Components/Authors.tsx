@@ -1,26 +1,21 @@
 import {useAtom} from "jotai";
-import {AllAuthorsAtom, AllBooksAtom} from "../atoms/atoms.ts";
 import {useEffect, useState} from "react";
-import {type Author, type CreateAuthorRequestDto, LibraryClient} from "../generated-client.ts";
+import {type Author, type Book, type CreateAuthorRequestDto, LibraryClient} from "../generated-client.ts";
 import {AuthorDetails} from "./AuthorDetails.tsx";
 import useLibraryCrud, {libraryApi} from "../useLibraryCrud.ts";
 import {resolveRefs} from "dotnet-json-refs";
 
 export default function Authors() {
 
-    //const [authors, setAllAuthors] = useAtom(AllAuthorsAtom);
     const [authors, setAuthors] = useState<Author[]>([])
-    const [books] = useAtom(AllBooksAtom);
+    const [books, setBooks] = useState<Book[]>([]);
     const [createAuthorForm, setCreateAuthorForm] = useState<CreateAuthorRequestDto>({
         name: "New Author"
     });
     const libraryCrud = useLibraryCrud();
     
     useEffect(() => {
-        libraryApi.getAuthors().then(result => {
-            const circularRefsHandled = resolveRefs(result);
-            setAuthors(circularRefsHandled)
-        })
+        libraryCrud.getAuthors(setAuthors, {filters: "", sorts: "", page: 1, pageSize: 1000});
     }, [])
 
 
@@ -48,7 +43,7 @@ export default function Authors() {
                         <button
                             className="btn btn-primary gap-2"
                             onClick={() => {
-                                libraryCrud.createAuthor(createAuthorForm);
+                                libraryCrud.createAuthor(createAuthorForm, setAuthors)
                                 setCreateAuthorForm({name: "New Author"});
                             }}
                         >
@@ -64,7 +59,7 @@ export default function Authors() {
 
         <ul className="list bg-base-100 rounded-box shadow-md mx-5">
             {
-                authors.map(a => <AuthorDetails key={a.id} author={a} />)
+                authors.map(a => <AuthorDetails key={a.id} author={a} setAllAuthors={setAuthors} />)
             }
         </ul>
     </>
