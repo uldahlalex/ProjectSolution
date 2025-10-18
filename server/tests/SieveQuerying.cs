@@ -40,4 +40,10 @@ public class SieveQuerying(ILibraryService libraryService, ITestOutputHelper out
         Assert.Single(res);
         Assert.Equal("Bob_0", res.First().Name);
     }
+
+    [Fact]
+    public async Task CombiningFiltersWithSameName()
+    {
+        
+    }
 }

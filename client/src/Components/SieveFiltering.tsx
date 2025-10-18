@@ -1,47 +1,43 @@
-import {useSearchParams} from "react-router";
+import {useLocation, useNavigate, useSearchParams} from "react-router";
 import {SieveQueryBuilder} from "ts-sieve-query-builder";
 import type {Author, Book} from "../generated-client.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {libraryApi} from "../useLibraryCrud.ts";
 import parameterizeSieveModel from "../parameterizeSieveModel.ts";
 import {resolveRefs} from "dotnet-json-refs";
 
 export default function SieveFiltering() {
-    
-    const [searchParams] = useSearchParams();
-    const [form, setForm] = useState<Book>({
-        title: "",
-        id: "",
-        genre: undefined,
-        authors: [],
-        createdat: new Date().toUTCString(),
-        genreid: undefined,
-        pages: 42
-    })
-    const sieveQuery = SieveQueryBuilder.create<Book>()
-            .filterContains("title", form.title)
-            .filterGreaterThan("createdat", form.createdat);
-    
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const searchString = location.search;
+    console.log("useLocation search string: "+searchString)
+    const sieveQuery = SieveQueryBuilder.parseQueryString<Book>(searchString)
+    console.log("sieve query object: "+JSON.stringify(sieveQuery))
+    console.log("sieve model: "+JSON.stringify(sieveQuery.buildSieveModel()));
+    console.log("sieve query string: "+JSON.stringify(sieveQuery.buildQueryString()))
+    console.log("sieve query params: "+JSON.stringify(sieveQuery.buildQueryParams()))
+    useEffect(() => {
+    const params = parameterizeSieveModel(sieveQuery.buildSieveModel());
+        libraryApi.getBooks(...params).then(r => {
+            console.log(resolveRefs(r))
+        })
+    }, [location])
     return <>
     
-    <input placeholder="title" defaultValue={form.title} onChange={e => {
-        console.log(form.createdat)
-        console.log(e.target.value)
-        const d = new Date(e.target.value)
-        console.log(d)
-        const a = d.toISOString()
-        console.log(a)
-        console.log(d.toUTCString())
-        setForm({...form, title: d.toUTCString()});
+    <input placeholder="title"  onChange={e => {
+        let q = sieveQuery;
+        // Remove existing title filter(s) first
+        q = q.removeFilters("title"); // if this method exists
+        // Then add the new one
+        q = q.filterContains("title", e.target.value);        console.log("query params: "+JSON.stringify(q.buildQueryParams()))
+        console.log("query string: "+JSON.stringify(q.buildQueryString()))
+        navigate({
+            pathname: '.',
+            search: ""+q.buildQueryString(),
+            hash: ''
+        })
     }} />
-    <input placeholder="date" type="date" defaultValue={form.createdat} onChange={e => setForm({...form,  title: e.target.value})} />
-    
-        <button onClick={() =>{
-            libraryApi.getBooks(...parameterizeSieveModel(sieveQuery.buildSieveModel())).then(r => {
-                console.log(resolveRefs(r))
-            })
-        }}>Submit</button>
-        
     </>
     
 }

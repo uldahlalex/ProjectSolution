@@ -32,7 +32,7 @@ export default function Books() {
     };
 
     // Parse current search params into a SieveQueryBuilder for type-safe querying
-    const queryBuilder = SieveQueryBuilder.parseFromString<Book>({
+    const queryBuilder = SieveQueryBuilder.fromSieveModel<Book>({
         filters: searchParams.get('filters') ?? "",
         sorts: searchParams.get('sorts') ?? "",
         pageSize: Number.parseInt(searchParams.get('pageSize') ?? "2"),
@@ -132,7 +132,7 @@ export default function Books() {
                 disabled={queryBuilder.buildSieveModel().page! <= 1}
                 onClick={() => {
                     const currentModel = queryBuilder.buildSieveModel();
-                    const newQuery = SieveQueryBuilder.parseFromString<Book>(currentModel)
+                    const newQuery = SieveQueryBuilder.fromSieveModel<Book>(currentModel)
                         .page(currentModel.page! - 1);
 
                     setSearchParams(sieveModelToParams(newQuery.buildSieveModel(), searchParams.get('search') || undefined));
@@ -146,7 +146,7 @@ export default function Books() {
                 disabled={allBooks.length < queryBuilder.buildSieveModel().pageSize!}
                 onClick={() => {
                     const currentModel = queryBuilder.buildSieveModel();
-                    const newQuery = SieveQueryBuilder.parseFromString<Book>(currentModel)
+                    const newQuery = SieveQueryBuilder.fromSieveModel<Book>(currentModel)
                         .page(currentModel.page! + 1);
 
                     setSearchParams(sieveModelToParams(newQuery.buildSieveModel(), searchParams.get('search') || undefined));
