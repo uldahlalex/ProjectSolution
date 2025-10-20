@@ -6,7 +6,6 @@ import Books from "./Components/Books.tsx";
 import Authors from "./Components/Authors.tsx";
 import Genres from "./Components/Genres.tsx";
 import {Toaster} from "react-hot-toast";
-import SieveFiltering from "./Components/SieveFiltering.tsx";
 
 
 function App() {
@@ -30,10 +29,6 @@ return (
                     {
                         path: 'genres',
                         element: <Genres/>
-                    },
-                    {
-                        path: "sieve",
-                        element: <SieveFiltering />
                     }
                 ]
             }

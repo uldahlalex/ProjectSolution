@@ -16,7 +16,7 @@ public class ApplicationSieveProcessor : SieveProcessor
 
     protected override SievePropertyMapper MapProperties(SievePropertyMapper mapper)
     {
-        // Configure Author entity
+        
         mapper.Property<Author>(a => a.Id)
             .CanFilter()
             .CanSort();
@@ -31,7 +31,8 @@ public class ApplicationSieveProcessor : SieveProcessor
 
         mapper.Property<Author>(a => a.Books.Count)
             .CanFilter()
-            .CanSort(); 
+            .CanSort()
+            .HasName("BooksCount");
 
         mapper.Property<Book>(b => b.Id)
             .CanFilter()
