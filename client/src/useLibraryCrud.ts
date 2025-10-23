@@ -3,7 +3,7 @@ import type {
     Book,
     CreateAuthorRequestDto,
     CreateBookRequestDto,
-    CreateGenreDto, Genre,
+    CreateGenreDto, Genre, SieveModel,
     UpdateAuthorRequestDto,
     UpdateBookRequestDto,
     UpdateGenreRequestDto
@@ -13,8 +13,6 @@ import customCatch from "./customCatch.ts";
 import toast from "react-hot-toast";
 import type {Dispatch, SetStateAction} from "react";
 import {resolveRefs} from "dotnet-json-refs";
-import type {SieveModel} from "ts-sieve-query-builder";
-import parameterizeSieveModel from "./parameterizeSieveModel.ts";
 
 const isProduction = import.meta.env.PROD;
 
@@ -186,7 +184,7 @@ export default function useLibraryCrud() {
     
     async function getAuthors(setAuthors: Dispatch<SetStateAction<Author[]>>, sieveModel: SieveModel) {
         try {
-            const result = resolveRefs(await libraryApi.getAuthors(...parameterizeSieveModel(sieveModel)));
+            const result = resolveRefs(await libraryApi.getAuthors((sieveModel)));
             setAuthors(Array.isArray(result) ? result : []);
         }
         catch (e: any) {
@@ -196,7 +194,7 @@ export default function useLibraryCrud() {
 
     async function getBooks(setBooks: Dispatch<SetStateAction<Book[]>>, sieveModel: SieveModel) {
         try {
-            const result = resolveRefs(await libraryApi.getBooks(...parameterizeSieveModel(sieveModel)));
+            const result = resolveRefs(await libraryApi.getBooks((sieveModel)));
             setBooks(Array.isArray(result) ? result : []);
         }
         catch (e: any) {
@@ -206,7 +204,7 @@ export default function useLibraryCrud() {
 
     async function getGenres(setGenres: Dispatch<SetStateAction<Genre[]>>, sieveModel: SieveModel) {
         try {
-            const result = resolveRefs(await libraryApi.getGenres(...parameterizeSieveModel(sieveModel)));
+            const result = resolveRefs(await libraryApi.getGenres((sieveModel)));
             setGenres(Array.isArray(result) ? result : []);
         }
         catch (e: any) {
