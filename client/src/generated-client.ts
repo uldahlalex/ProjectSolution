@@ -528,6 +528,20 @@ export interface UpdateGenreRequestDto {
     newName: string;
 }
 
+/** String constants from SieveConstants */
+export interface SieveConstants {
+    /** Constant value: "GenreName" */
+    readonly GenreName: string;
+    /** Constant value: "GenreId" */
+    readonly GenreId: string;
+}
+
+/** Constant values for SieveConstants */
+export const SieveConstants = {
+    GenreName: "GenreName",
+    GenreId: "GenreId"
+} as const;
+
 export class ApiException extends Error {
     override message: string;
     status: number;

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using api.Services;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
+using NSwag.Generation.Processors.Collections;
 using Sieve.Models;
 using Sieve.Services;
 using Testcontainers.PostgreSql;
@@ -29,21 +30,26 @@ public class Program
                             services.AddDbContext<MyDbContext>((services, options) =>
                             {
                                 options.UseNpgsql(connectionString);
+                                // options.UseQueryTrackingBehavior(QueryTrackingBehavior
+                                //     .NoTrackingWithIdentityResolution);
                             });
         }
         else
         {
             services.AddDbContext<MyDbContext>((services, options) =>
             {
-                    
                 options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
-            });
+            }, ServiceLifetime.Transient);
         }
         services.AddControllers().AddJsonOptions(opts =>
         {
             opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         });
-        services.AddOpenApiDocument();
+        services.AddOpenApiDocument(config =>
+        {
+            // Add string constants to schemas - generates TypeScript constants
+            config.AddStringConstants(typeof(SieveConstants));
+        });
         services.AddCors();
         services.AddScoped<ILibraryService, LibraryService>();
         services.AddScoped<ISeeder, SieveTestSeeder>();

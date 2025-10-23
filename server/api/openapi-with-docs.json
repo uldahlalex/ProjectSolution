@@ -641,6 +641,29 @@
             "minLength": 1
           }
         }
+      },
+      "SieveConstants": {
+        "type": "object",
+        "description": "String constants from SieveConstants",
+        "additionalProperties": false,
+        "properties": {
+          "GenreName": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Constant value: \"GenreName\"",
+            "default": "GenreName"
+          },
+          "GenreId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Constant value: \"GenreId\"",
+            "default": "GenreId"
+          }
+        },
+        "x-constant-values": {
+          "GenreName": "GenreName",
+          "GenreId": "GenreId"
+        }
       }
     }
   }

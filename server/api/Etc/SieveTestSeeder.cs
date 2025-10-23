@@ -127,5 +127,7 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
             }
         }
         await ctx.SaveChangesAsync();
+        //Stop tracking
+        ctx.ChangeTracker.Clear();
     }
 }

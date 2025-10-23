@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using api.DTOs;
 using api.DTOs.Requests;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
@@ -45,14 +44,15 @@ public class LibraryService(MyDbContext ctx, ISieveProcessor sieveProcessor) : I
     {
         IQueryable<Author> query = ctx.Authors;
 
-        // Apply Sieve FIRST (filtering, sorting, pagination)
-        query = sieveProcessor.Apply(sieveModel, query);
+            // Normal path: Apply Sieve FIRST (filtering, sorting, pagination)
+            query = sieveProcessor.Apply(sieveModel, query);
 
-        // Include Books but DON'T include nested Genre/Authors to avoid cycles
-        return await query
-            .Include(a => a.Books) 
-            .AsSplitQuery()
-            .ToListAsync();
+            // Include Books but DON'T include nested Genre/Authors to avoid cycles
+            return await query
+                .Include(a => a.Books)
+                .AsSplitQuery()
+                .ToListAsync();
+        
     }
 
     public async Task<Book> CreateBook(CreateBookRequestDto dto)
