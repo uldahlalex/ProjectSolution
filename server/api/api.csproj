@@ -8,6 +8,7 @@
 
 
     <ItemGroup>
+        <PackageReference Include="Bogus" Version="*" />
         <PackageReference Include="NSwag.AspNetCore" Version="*" />
         <PackageReference Include="Sieve.Query.Builder" Version="1.1.1" />
         <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="*" />

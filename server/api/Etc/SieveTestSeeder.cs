@@ -1,3 +1,4 @@
+using Bogus;
 using dataccess;
 
 namespace api;
@@ -13,121 +14,102 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
         ctx.Genres.RemoveRange(ctx.Genres);
         await ctx.SaveChangesAsync();
 
-        // Create genres (20 genres)
-        var genres = new List<Genre>();
-        var genreNames = new[]
-        {
-            "Science Fiction", "Fantasy", "Mystery", "Thriller", "Romance",
-            "Horror", "Historical Fiction", "Biography", "Self-Help", "Business",
-            "Philosophy", "Poetry", "Drama", "Adventure", "Crime",
-            "Western", "Dystopian", "Paranormal", "Contemporary", "Classic"
-        };
+        // Set a deterministic seed for reproducibility
+        Randomizer.Seed = new Random(12345);
 
-        for (int i = 0; i < genreNames.Length; i++)
-        {
-            genres.Add(new Genre
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = genreNames[i],
-                Createdat = DateTime.UtcNow.AddDays(-(i * 18)) // Deterministic dates based on index
-            });
-        }
+        // Create genres (50 genres with varied, realistic names)
+        var genreFaker = new Faker<Genre>()
+            .RuleFor(g => g.Id, f => Guid.NewGuid().ToString())
+            .RuleFor(g => g.Name, f => f.PickRandom(
+                "Science Fiction", "Fantasy", "Mystery", "Thriller", "Romance",
+                "Horror", "Historical Fiction", "Biography", "Autobiography", "Self-Help",
+                "Business", "Philosophy", "Poetry", "Drama", "Adventure",
+                "Crime", "Western", "Dystopian", "Paranormal", "Contemporary",
+                "Classic", "Young Adult", "Children's Literature", "Graphic Novel", "Memoir",
+                "True Crime", "Travel", "Cookbook", "Art & Photography", "Science",
+                "History", "Politics", "Religion & Spirituality", "Psychology", "Sociology",
+                "Economics", "Technology", "Health & Fitness", "Parenting", "Education",
+                "Literary Fiction", "Urban Fantasy", "Space Opera", "Cyberpunk", "Steampunk",
+                "Military Fiction", "Legal Thriller", "Medical Thriller", "Spy Fiction", "Satire"
+            ))
+            .RuleFor(g => g.Createdat, f => f.Date.Past(5));
+
+        var genres = genreFaker.Generate(50);
         ctx.Genres.AddRange(genres);
         await ctx.SaveChangesAsync();
 
-        // Create authors (100 authors) - deterministic, idempotent
-        var authors = new List<Author>();
-        var fullNames = new[]
-        {
-            "John Smith", "Jane Johnson", "Michael Williams", "Sarah Brown", "David Jones",
-            "Emma Garcia", "Robert Miller", "Lisa Davis", "William Rodriguez", "Mary Martinez",
-            "James Hernandez", "Patricia Lopez", "Richard Gonzalez", "Jennifer Wilson", "Thomas Anderson",
-            "Linda Thomas", "Charles Taylor", "Barbara Moore", "Daniel Jackson", "Elizabeth Martin",
-            "Matthew Lee", "Susan Thompson", "Anthony White", "Jessica Harris", "Mark Clark",
-            "Ashley Lewis", "Donald Robinson", "Dorothy Walker", "Steven Hall", "Nancy Allen",
-            "Paul Young", "Karen King", "George Wright", "Betty Scott", "Edward Green",
-            "Sandra Adams", "Brian Baker", "Donna Nelson", "Ronald Carter", "Carol Mitchell",
-            "Kevin Perez", "Michelle Roberts", "Jason Turner", "Kimberly Phillips", "Gary Campbell",
-            "Lisa Parker", "Timothy Evans", "Helen Edwards", "Jeffrey Collins", "Deborah Stewart",
-            "Ryan Sanchez", "Sarah Morris", "Jacob Rogers", "Margaret Reed", "Nicholas Cook",
-            "Emily Morgan", "Eric Bell", "Stephanie Murphy", "Jonathan Bailey", "Amanda Rivera",
-            "Stephen Cooper", "Melissa Richardson", "Larry Cox", "Debra Howard", "Justin Ward",
-            "Rebecca Torres", "Scott Peterson", "Sharon Gray", "Brandon Ramirez", "Cynthia James",
-            "Raymond Watson", "Kathleen Brooks", "Samuel Kelly", "Amy Sanders", "Gregory Price",
-            "Angela Bennett", "Alexander Wood", "Shirley Barnes", "Patrick Ross", "Brenda Henderson",
-            "Frank Coleman", "Pamela Jenkins", "Benjamin Perry", "Anna Powell", "Jack Long",
-            "Nicole Patterson", "Dennis Hughes", "Catherine Flores", "Jerry Washington", "Heather Butler",
-            "Tyler Simmons", "Diane Foster", "Aaron Gonzales", "Ruth Bryant", "Jose Alexander",
-            "Virginia Russell", "Adam Griffin", "Christina Diaz", "Henry Hayes", "Janet Myers"
-        };
+        // Create authors (500 authors with realistic names)
+        var authorFaker = new Faker<Author>()
+            .RuleFor(a => a.Id, f => Guid.NewGuid().ToString())
+            .RuleFor(a => a.Name, f => f.Name.FullName())
+            .RuleFor(a => a.Createdat, f => f.Date.Past(10));
 
-        for (int i = 0; i < 100; i++)
-        {
-            authors.Add(new Author
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = fullNames[i],
-                Createdat = DateTime.UtcNow.AddDays(-((i * 10) % 1000)) // Deterministic dates based on index
-            });
-        }
+        var authors = authorFaker.Generate(500);
         ctx.Authors.AddRange(authors);
         await ctx.SaveChangesAsync();
 
-        // Create books (500 books with varied data) - deterministic, idempotent
-        var books = new List<Book>();
-        var titlePrefixes = new[]
-        {
-            "The", "A", "An", "Tales of", "Chronicles of", "Legend of",
-            "Secrets of", "Adventures in", "Journey to", "Mystery of"
-        };
-        var titleMiddles = new[]
-        {
-            "Dark", "Lost", "Hidden", "Ancient", "Forgotten", "Eternal",
-            "Silent", "Broken", "Golden", "Silver", "Crimson", "Emerald"
-        };
-        var titleSuffixes = new[]
-        {
-            "Kingdom", "Empire", "City", "Forest", "Mountain", "Ocean",
-            "Desert", "Island", "Castle", "Tower", "Shadow", "Light",
-            "Dream", "Night", "Dawn", "Storm", "Fire", "Ice"
-        };
+        // Create books (5000 books with highly varied, realistic titles)
+        // This ensures obscure queries will likely return results
+        var bookFaker = new Faker<Book>()
+            .RuleFor(b => b.Id, f => Guid.NewGuid().ToString())
+            .RuleFor(b => b.Title, f => GenerateRealisticBookTitle(f))
+            .RuleFor(b => b.Pages, f => f.Random.Number(50, 1200))
+            .RuleFor(b => b.Createdat, f => f.Date.Past(20))
+            .RuleFor(b => b.Genreid, f => f.PickRandom(genres).Id);
 
-        for (int i = 0; i < 500; i++)
-        {
-            var prefix = titlePrefixes[i % titlePrefixes.Length];
-            var middle = titleMiddles[(i / titlePrefixes.Length) % titleMiddles.Length];
-            var suffix = titleSuffixes[(i / (titlePrefixes.Length * titleMiddles.Length)) % titleSuffixes.Length];
-
-            var book = new Book
-            {
-                Id = Guid.NewGuid().ToString(),
-                Title = $"{prefix} {middle} {suffix}",
-                Pages = 50 + ((i * 19) % 950), // Deterministic page count between 50-1000
-                Createdat = DateTime.UtcNow.AddDays(-(i * 4)), // Deterministic dates based on index
-                Genreid = genres[i % genres.Count].Id // Deterministic genre assignment
-            };
-
-            books.Add(book);
-        }
+        var books = bookFaker.Generate(5000);
         ctx.Books.AddRange(books);
         await ctx.SaveChangesAsync();
 
-        // Create author-book relationships (many-to-many) - deterministic, idempotent
-        // Each book will have 1-3 authors based on deterministic logic
-        for (int i = 0; i < books.Count; i++)
+        // Create author-book relationships (many-to-many)
+        // Each book will have 1-4 authors randomly assigned
+        var random = new Random(12345);
+        foreach (var book in books)
         {
-            var book = books[i];
-            var numAuthors = 1 + (i % 3); // Deterministic: cycles through 1, 2, 3 authors
+            var numAuthors = random.Next(1, 5); // 1 to 4 authors
+            var selectedAuthors = authors.OrderBy(x => random.Next()).Take(numAuthors);
 
-            // Deterministically select authors based on book index
-            for (int j = 0; j < numAuthors; j++)
+            foreach (var author in selectedAuthors)
             {
-                var authorIndex = (i * 7 + j * 13) % authors.Count; // Deterministic author selection
-                book.Authors.Add(authors[authorIndex]);
+                book.Authors.Add(author);
             }
         }
         await ctx.SaveChangesAsync();
-        //Stop tracking
+
+        // Stop tracking
         ctx.ChangeTracker.Clear();
+    }
+
+    private static string GenerateRealisticBookTitle(Faker f)
+    {
+        // Generate diverse, realistic book titles with varied structures
+        var titleType = f.Random.Number(0, 9);
+
+        return titleType switch
+        {
+            0 => $"The {Capitalize(f.Random.Word())} of {f.Name.FirstName()}", // "The Mystery of Alice"
+            1 => CapitalizeWords(f.Random.Words()), // Two random words
+            2 => $"{f.Commerce.ProductAdjective()} {Capitalize(f.Random.Word())}", // "Incredible Journey"
+            3 => $"The {f.Commerce.ProductAdjective()} {Capitalize(f.Random.Word())}", // "The Silent Night"
+            4 => $"{f.Name.FirstName()}'s {Capitalize(f.Random.Word())}", // "Sarah's Quest"
+            5 => $"{Capitalize(f.Random.Word())} in {f.Address.City()}", // "Adventure in Tokyo"
+            6 => $"The {Capitalize(f.Random.Word())} and the {Capitalize(f.Random.Word())}", // "The Lion and the Mouse"
+            7 => CapitalizeWords(f.Random.Words(3)), // Three random words
+            8 => $"A {Capitalize(f.Random.Word())} to {Capitalize(f.Random.Word())}", // "A Journey to Remember"
+            _ => $"{Capitalize(f.Hacker.Adjective())} {Capitalize(f.Random.Word())}" // "Digital Fortress"
+        };
+    }
+
+    private static string Capitalize(string word)
+    {
+        if (string.IsNullOrEmpty(word)) return word;
+        return char.ToUpper(word[0]) + word.Substring(1).ToLower();
+    }
+
+    private static string CapitalizeWords(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        var words = text.Split(' ');
+        return string.Join(" ", words.Select(Capitalize));
     }
 }
