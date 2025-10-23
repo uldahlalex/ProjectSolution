@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using api;
 using api.Services;
 using dataccess;
@@ -7,14 +8,42 @@ using SieveQueryBuilder;
 
 namespace tests;
 
-public class SieveQuerying(ILibraryService libraryService, ITestOutputHelper outputHelper, ISeeder seeder)
+public class SieveQuerying(ILibraryService libraryService, 
+    MyDbContext ctx,
+    ITestOutputHelper outputHelper,
+    ISeeder seeder)
 {
     // Basic Filtering Tests
     [Fact]
-    public async Task FilterAuthors_ByExactName() { throw new NotImplementedException(); }
+    public async Task FilterAuthors_ByExactName()
+    {
+        await seeder.Seed();
+
+        var randomAuthor = ctx.Authors.OrderBy(a => Guid.NewGuid()).First();
+
+        var builder = SieveQueryBuilder<Author>.Create()
+            .FilterEquals(a => a.Name, randomAuthor.Name);
+        
+        outputHelper.WriteLine("Requesting with model: "+JsonSerializer.Serialize(builder.BuildSieveModel()));
+        
+        var actual = await libraryService.GetAuthors(builder.BuildSieveModel());
+        
+        outputHelper.WriteLine("JSON serialized actual result: "+JsonSerializer.Serialize(actual, new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.Preserve,
+            MaxDepth = 1024,
+            WriteIndented = true
+        }));
+        
+        Assert.Contains(actual, a => a == randomAuthor);
+
+    }
 
     [Fact]
-    public async Task FilterAuthors_ByNameContains() { throw new NotImplementedException(); }
+    public async Task FilterAuthors_ByNameContains()
+    {
+        
+    }
 
     [Fact]
     public async Task FilterAuthors_ByNameStartsWith() { throw new NotImplementedException(); }

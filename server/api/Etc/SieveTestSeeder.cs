@@ -6,6 +6,7 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
 {
     public async Task Seed()
     {
+        await ctx.Database.EnsureCreatedAsync();
         // Clear existing data
         ctx.Books.RemoveRange(ctx.Books);
         ctx.Authors.RemoveRange(ctx.Authors);
@@ -28,45 +29,51 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = genreNames[i],
-                Createdat = DateTime.UtcNow.AddDays(-Random.Shared.Next(1, 365))
+                Createdat = DateTime.UtcNow.AddDays(-(i * 18)) // Deterministic dates based on index
             });
         }
         ctx.Genres.AddRange(genres);
         await ctx.SaveChangesAsync();
 
-        // Create authors (100 authors)
+        // Create authors (100 authors) - deterministic, idempotent
         var authors = new List<Author>();
-        var firstNames = new[]
+        var fullNames = new[]
         {
-            "John", "Jane", "Michael", "Sarah", "David", "Emma", "Robert", "Lisa",
-            "William", "Mary", "James", "Patricia", "Richard", "Jennifer", "Thomas",
-            "Linda", "Charles", "Barbara", "Daniel", "Elizabeth", "Matthew", "Susan",
-            "Anthony", "Jessica", "Mark", "Ashley", "Donald", "Dorothy", "Steven", "Nancy"
-        };
-        var lastNames = new[]
-        {
-            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
-            "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Thompson", "White",
-            "Harris", "Clark", "Lewis", "Robinson", "Walker", "Hall", "Allen"
+            "John Smith", "Jane Johnson", "Michael Williams", "Sarah Brown", "David Jones",
+            "Emma Garcia", "Robert Miller", "Lisa Davis", "William Rodriguez", "Mary Martinez",
+            "James Hernandez", "Patricia Lopez", "Richard Gonzalez", "Jennifer Wilson", "Thomas Anderson",
+            "Linda Thomas", "Charles Taylor", "Barbara Moore", "Daniel Jackson", "Elizabeth Martin",
+            "Matthew Lee", "Susan Thompson", "Anthony White", "Jessica Harris", "Mark Clark",
+            "Ashley Lewis", "Donald Robinson", "Dorothy Walker", "Steven Hall", "Nancy Allen",
+            "Paul Young", "Karen King", "George Wright", "Betty Scott", "Edward Green",
+            "Sandra Adams", "Brian Baker", "Donna Nelson", "Ronald Carter", "Carol Mitchell",
+            "Kevin Perez", "Michelle Roberts", "Jason Turner", "Kimberly Phillips", "Gary Campbell",
+            "Lisa Parker", "Timothy Evans", "Helen Edwards", "Jeffrey Collins", "Deborah Stewart",
+            "Ryan Sanchez", "Sarah Morris", "Jacob Rogers", "Margaret Reed", "Nicholas Cook",
+            "Emily Morgan", "Eric Bell", "Stephanie Murphy", "Jonathan Bailey", "Amanda Rivera",
+            "Stephen Cooper", "Melissa Richardson", "Larry Cox", "Debra Howard", "Justin Ward",
+            "Rebecca Torres", "Scott Peterson", "Sharon Gray", "Brandon Ramirez", "Cynthia James",
+            "Raymond Watson", "Kathleen Brooks", "Samuel Kelly", "Amy Sanders", "Gregory Price",
+            "Angela Bennett", "Alexander Wood", "Shirley Barnes", "Patrick Ross", "Brenda Henderson",
+            "Frank Coleman", "Pamela Jenkins", "Benjamin Perry", "Anna Powell", "Jack Long",
+            "Nicole Patterson", "Dennis Hughes", "Catherine Flores", "Jerry Washington", "Heather Butler",
+            "Tyler Simmons", "Diane Foster", "Aaron Gonzales", "Ruth Bryant", "Jose Alexander",
+            "Virginia Russell", "Adam Griffin", "Christina Diaz", "Henry Hayes", "Janet Myers"
         };
 
         for (int i = 0; i < 100; i++)
         {
-            var firstName = firstNames[Random.Shared.Next(firstNames.Length)];
-            var lastName = lastNames[Random.Shared.Next(lastNames.Length)];
-
             authors.Add(new Author
             {
                 Id = Guid.NewGuid().ToString(),
-                Name = $"{firstName} {lastName}",
-                Createdat = DateTime.UtcNow.AddDays(-Random.Shared.Next(1, 1000))
+                Name = fullNames[i],
+                Createdat = DateTime.UtcNow.AddDays(-((i * 10) % 1000)) // Deterministic dates based on index
             });
         }
         ctx.Authors.AddRange(authors);
         await ctx.SaveChangesAsync();
 
-        // Create books (500 books with varied data)
+        // Create books (500 books with varied data) - deterministic, idempotent
         var books = new List<Book>();
         var titlePrefixes = new[]
         {
@@ -87,17 +94,17 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
 
         for (int i = 0; i < 500; i++)
         {
-            var prefix = titlePrefixes[Random.Shared.Next(titlePrefixes.Length)];
-            var middle = titleMiddles[Random.Shared.Next(titleMiddles.Length)];
-            var suffix = titleSuffixes[Random.Shared.Next(titleSuffixes.Length)];
+            var prefix = titlePrefixes[i % titlePrefixes.Length];
+            var middle = titleMiddles[(i / titlePrefixes.Length) % titleMiddles.Length];
+            var suffix = titleSuffixes[(i / (titlePrefixes.Length * titleMiddles.Length)) % titleSuffixes.Length];
 
             var book = new Book
             {
                 Id = Guid.NewGuid().ToString(),
                 Title = $"{prefix} {middle} {suffix}",
-                Pages = Random.Shared.Next(50, 1000),
-                Createdat = DateTime.UtcNow.AddDays(-Random.Shared.Next(1, 2000)),
-                Genreid = genres[Random.Shared.Next(genres.Count)].Id
+                Pages = 50 + ((i * 19) % 950), // Deterministic page count between 50-1000
+                Createdat = DateTime.UtcNow.AddDays(-(i * 4)), // Deterministic dates based on index
+                Genreid = genres[i % genres.Count].Id // Deterministic genre assignment
             };
 
             books.Add(book);
@@ -105,19 +112,18 @@ public class SieveTestSeeder(MyDbContext ctx) : ISeeder
         ctx.Books.AddRange(books);
         await ctx.SaveChangesAsync();
 
-        // Create author-book relationships (many-to-many)
-        // Each book will have 1-3 authors
-        foreach (var book in books)
+        // Create author-book relationships (many-to-many) - deterministic, idempotent
+        // Each book will have 1-3 authors based on deterministic logic
+        for (int i = 0; i < books.Count; i++)
         {
-            var numAuthors = Random.Shared.Next(1, 4);
-            var selectedAuthors = authors
-                .OrderBy(_ => Random.Shared.Next())
-                .Take(numAuthors)
-                .ToList();
+            var book = books[i];
+            var numAuthors = 1 + (i % 3); // Deterministic: cycles through 1, 2, 3 authors
 
-            foreach (var author in selectedAuthors)
+            // Deterministically select authors based on book index
+            for (int j = 0; j < numAuthors; j++)
             {
-                book.Authors.Add(author);
+                var authorIndex = (i * 7 + j * 13) % authors.Count; // Deterministic author selection
+                book.Authors.Add(authors[authorIndex]);
             }
         }
         await ctx.SaveChangesAsync();

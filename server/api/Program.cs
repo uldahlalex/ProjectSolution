@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using api.Services;
 using dataccess;
 using Microsoft.EntityFrameworkCore;
-using SieveQueryBuilder;
+using Sieve.Models;
+using Sieve.Services;
+using Testcontainers.PostgreSql;
 
 namespace api;
 
@@ -18,11 +20,25 @@ public class Program
             configuration.GetSection(nameof(AppOptions)).Bind(appOptions);
             return appOptions;
         });
-        services.AddDbContext<MyDbContext>((services, options) =>
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        if (environment!="Production")
         {
-            options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
-            
-        });
+                 var postgreSqlContainer = new PostgreSqlBuilder().Build();
+                            postgreSqlContainer.StartAsync().GetAwaiter().GetResult();
+                            var connectionString = postgreSqlContainer.GetConnectionString();
+                            services.AddDbContext<MyDbContext>((services, options) =>
+                            {
+                                options.UseNpgsql(connectionString);
+                            });
+        }
+        else
+        {
+            services.AddDbContext<MyDbContext>((services, options) =>
+            {
+                    
+                options.UseNpgsql(services.GetRequiredService<AppOptions>().Db);
+            });
+        }
         services.AddControllers().AddJsonOptions(opts =>
         {
             opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
@@ -30,23 +46,22 @@ public class Program
         services.AddOpenApiDocument();
         services.AddCors();
         services.AddScoped<ILibraryService, LibraryService>();
-        services.AddScoped<ISeeder, SeederWithRelations>();
+        services.AddScoped<ISeeder, SieveTestSeeder>();
         services.AddExceptionHandler<MyGlobalExceptionHandler>();
-
-        // Configure Sieve
-        services.Configure<Sieve.Models.SieveOptions>(options =>
+        services.Configure<SieveOptions>(options =>
         {
             options.CaseSensitive = false;
             options.DefaultPageSize = 10;
             options.MaxPageSize = 100;
         });
      
-        services.AddScoped<Sieve.Services.ISieveProcessor, ApplicationSieveProcessor>();
+        services.AddScoped<ISieveProcessor, ApplicationSieveProcessor>();
     }
 
     public static void Main()
     {
         var builder = WebApplication.CreateBuilder();
+        
         ConfigureServices(builder.Services);
         var app = builder.Build();
 
@@ -60,14 +75,11 @@ public class Program
         app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetIsOriginAllowed(x => true));
         app.MapControllers();
         app.GenerateApiClientsFromOpenApi("/../../client/src/generated-client.ts").GetAwaiter().GetResult();
-        // if (app.Environment.IsDevelopment())
+         if (app.Environment.IsDevelopment())
             using (var scope = app.Services.CreateScope())
-            {
-                var seeder = scope.ServiceProvider.GetService<ISeeder>();
-                if (seeder != null) seeder.Seed().GetAwaiter().GetResult();
-            }
-
+                scope.ServiceProvider.GetRequiredService<ISeeder>().Seed().GetAwaiter().GetResult();
         
-    app.Run();
+        
+         app.Run();
     }
 }

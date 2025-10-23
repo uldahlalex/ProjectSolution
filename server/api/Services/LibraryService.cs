@@ -16,22 +16,42 @@ public class LibraryService(MyDbContext ctx, ISieveProcessor sieveProcessor) : I
     {
         IQueryable<Book> query =  ctx.Books;
 
+        // Apply Sieve FIRST (filtering, sorting, pagination)
         query = sieveProcessor.Apply(sieveModel, query);
-        
-            return query
-            .Include(b => b.Genre)
-            .Include(b => b.Authors)
+
+        // Then include related data - but DON'T nest further to avoid cycles
+        return query
+            .Include(b => b.Genre)  // Genre won't include its Books
+            .Include(b => b.Authors) // Authors won't include their Books
+            .AsSplitQuery()
             .ToListAsync();
     }
 
     public Task<List<Genre>> GetGenres(SieveModel sieveModel)
     {
         IQueryable<Genre> query =  ctx.Genres;
-            
+
+        // Apply Sieve FIRST (filtering, sorting, pagination)
         query = sieveProcessor.Apply(sieveModel, query);
-        
-        return query.Include(g => g.Books)
-            .ThenInclude(b => b.Authors)
+
+        // Include Books but DON'T include nested Authors to avoid cycles
+        return query
+            .Include(g => g.Books) 
+            .AsSplitQuery()
+            .ToListAsync();
+    }
+    
+    public async Task<List<Author>> GetAuthors(SieveModel sieveModel)
+    {
+        IQueryable<Author> query = ctx.Authors;
+
+        // Apply Sieve FIRST (filtering, sorting, pagination)
+        query = sieveProcessor.Apply(sieveModel, query);
+
+        // Include Books but DON'T include nested Genre/Authors to avoid cycles
+        return await query
+            .Include(a => a.Books) 
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -145,39 +165,7 @@ public class LibraryService(MyDbContext ctx, ISieveProcessor sieveProcessor) : I
     }
     
 
-    public async Task<List<Author>> GetAuthors(SieveModel sieveModel)
-    {
-        IQueryable<Author> query = ctx.Authors;
-        query = sieveProcessor.Apply(sieveModel, query);
-        query = query.Include(a => a.Books)
-            .ThenInclude(b => b.Genre);
-        return query.ToList();
-    }
+ 
 
-    // public async Task<List<Author>> GetAuthorsSieve(GetAuthorsSieveRequestDto dto)
-    // {
-    //     Validator.ValidateObject(dto, new ValidationContext(dto), true);
-    //
-    //     // Start with base query WITHOUT includes (to allow Books.Count filtering/sorting)
-    //     IQueryable<Author> query = ctx.Authors;
-    //
-    //     // Convert our DTO to Sieve's SieveModel
-    //     var sieveModel = new SieveModel
-    //     {
-    //         Filters = dto.Filters,
-    //         Sorts = dto.Sorts,
-    //         Page = dto.Page,
-    //         PageSize = dto.PageSize
-    //     };
-    //
-    //     // Apply Sieve filtering, sorting, and pagination BEFORE includes
-    //     query = sieveProcessor.Apply(sieveModel, query);
-    //
-    //     // NOW include related data after filtering/sorting/pagination
-    //     query = query
-    //         .Include(a => a.Books)
-    //         .ThenInclude(b => b.Genre);
-    //
-    //     return await query.ToListAsync();
-    // }
+    
 }

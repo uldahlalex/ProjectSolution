@@ -9,8 +9,8 @@ namespace api;
 public class LibraryController(ILibraryService libraryService) : ControllerBase
 {
  
-    [HttpGet(nameof(GetAuthors))]
-    public async Task<List<Author>> GetAuthors([FromQuery]SieveModel sieveModel)
+    [HttpPost(nameof(GetAuthors))]
+    public async Task<List<Author>> GetAuthors([FromBody]SieveModel sieveModel)
     {
         return await libraryService.GetAuthors(sieveModel);
     }
@@ -18,14 +18,14 @@ public class LibraryController(ILibraryService libraryService) : ControllerBase
 
 
 
-    [HttpGet(nameof(GetBooks))]
-    public async Task<List<Book>> GetBooks([FromQuery]SieveModel sieveModel)
+    [HttpPost(nameof(GetBooks))]
+    public async Task<List<Book>> GetBooks([FromBody]SieveModel sieveModel)
     {
         return await libraryService.GetBooks(sieveModel);
     }
 
-    [HttpGet(nameof(GetGenres))]
-    public async Task<List<Genre>> GetGenres([FromQuery] SieveModel sieveModel)
+    [HttpPost(nameof(GetGenres))]
+    public async Task<List<Genre>> GetGenres([FromBody] SieveModel sieveModel)
     {
         return await libraryService.GetGenres(sieveModel);
     }

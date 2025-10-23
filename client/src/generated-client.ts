@@ -17,21 +17,17 @@ export class LibraryClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAuthors(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Author[]> {
-        let url_ = this.baseUrl + "/GetAuthors?";
-        if (filters !== undefined && filters !== null)
-            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
-        if (sorts !== undefined && sorts !== null)
-            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
-        if (page !== undefined && page !== null)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (pageSize !== undefined && pageSize !== null)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+    getAuthors(sieveModel: SieveModel): Promise<Author[]> {
+        let url_ = this.baseUrl + "/GetAuthors";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(sieveModel);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -58,21 +54,17 @@ export class LibraryClient {
         return Promise.resolve<Author[]>(null as any);
     }
 
-    getBooks(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Book[]> {
-        let url_ = this.baseUrl + "/GetBooks?";
-        if (filters !== undefined && filters !== null)
-            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
-        if (sorts !== undefined && sorts !== null)
-            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
-        if (page !== undefined && page !== null)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (pageSize !== undefined && pageSize !== null)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+    getBooks(sieveModel: SieveModel): Promise<Book[]> {
+        let url_ = this.baseUrl + "/GetBooks";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(sieveModel);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -99,21 +91,17 @@ export class LibraryClient {
         return Promise.resolve<Book[]>(null as any);
     }
 
-    getGenres(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<Genre[]> {
-        let url_ = this.baseUrl + "/GetGenres?";
-        if (filters !== undefined && filters !== null)
-            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
-        if (sorts !== undefined && sorts !== null)
-            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
-        if (page !== undefined && page !== null)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (pageSize !== undefined && pageSize !== null)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+    getGenres(sieveModel: SieveModel): Promise<Genre[]> {
+        let url_ = this.baseUrl + "/GetGenres";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(sieveModel);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -496,6 +484,16 @@ export interface Genre {
     name: string;
     createdat: string;
     books: Book[];
+}
+
+export interface SieveModelOfFilterTermAndSortTerm {
+    filters: string | undefined;
+    sorts: string | undefined;
+    page: number | undefined;
+    pageSize: number | undefined;
+}
+
+export interface SieveModel extends SieveModelOfFilterTermAndSortTerm {
 }
 
 export interface CreateBookRequestDto {

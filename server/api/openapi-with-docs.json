@@ -7,55 +7,23 @@
   },
   "paths": {
     "/GetAuthors": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetAuthors",
-        "parameters": [
-          {
-            "name": "Filters",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
+        "requestBody": {
+          "x-name": "sieveModel",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SieveModel"
+              }
+            }
           },
-          {
-            "name": "Sorts",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 4
-          }
-        ],
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -74,55 +42,23 @@
       }
     },
     "/GetBooks": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetBooks",
-        "parameters": [
-          {
-            "name": "Filters",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
+        "requestBody": {
+          "x-name": "sieveModel",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SieveModel"
+              }
+            }
           },
-          {
-            "name": "Sorts",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 4
-          }
-        ],
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -141,55 +77,23 @@
       }
     },
     "/GetGenres": {
-      "get": {
+      "post": {
         "tags": [
           "Library"
         ],
         "operationId": "Library_GetGenres",
-        "parameters": [
-          {
-            "name": "Filters",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
+        "requestBody": {
+          "x-name": "sieveModel",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SieveModel"
+              }
+            }
           },
-          {
-            "name": "Sorts",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 4
-          }
-        ],
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -571,6 +475,45 @@
             "items": {
               "$ref": "#/components/schemas/Book"
             }
+          }
+        }
+      },
+      "SieveModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SieveModelOfFilterTermAndSortTerm"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "SieveModelOfFilterTermAndSortTerm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "filters": {
+            "type": "string",
+            "nullable": true
+          },
+          "sorts": {
+            "type": "string",
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647.0,
+            "minimum": 1.0,
+            "nullable": true
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647.0,
+            "minimum": 1.0,
+            "nullable": true
           }
         }
       },
